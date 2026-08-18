@@ -1,0 +1,117 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://finsight.local/schemas/case.schema.json",
+  "title": "FinSightCase",
+  "type": "object",
+  "required": ["case_id", "fish", "images", "observations", "water_quality", "history"],
+  "properties": {
+    "case_id": { "type": "string" },
+    "fish": {
+      "type": "object",
+      "required": ["species"],
+      "properties": {
+        "species": { "type": "string", "default": "Nile tilapia" },
+        "life_stage": { "type": ["string", "null"] }
+      }
+    },
+    "images": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/image" }
+    },
+    "observations": {
+      "type": "object",
+      "properties": {
+        "visual": { "type": "array", "items": { "type": "string" } },
+        "behavioral": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "water_quality": { "$ref": "#/$defs/water_quality" },
+    "history": { "type": "object" },
+    "agent_questions": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/agent_question" }
+    },
+    "retrieved_evidence": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/evidence" }
+    },
+    "differential": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/differential_item" }
+    },
+    "recommended_actions": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "escalation": {
+      "type": "array",
+      "items": { "type": "string" }
+    }
+  },
+  "$defs": {
+    "image": {
+      "type": "object",
+      "required": ["image_id", "filename"],
+      "properties": {
+        "image_id": { "type": "string" },
+        "filename": { "type": "string" },
+        "visible_findings": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "source": { "type": "string" }
+      }
+    },
+    "water_quality": {
+      "type": "object",
+      "properties": {
+        "temperature_c": { "type": ["number", "null"] },
+        "ph": { "type": ["number", "null"] },
+        "dissolved_oxygen_mg_l": { "type": ["number", "null"] },
+        "ammonia_mg_l": { "type": ["number", "null"] },
+        "nitrite_mg_l": { "type": ["number", "null"] },
+        "nitrate_mg_l": { "type": ["number", "null"] }
+      }
+    },
+    "agent_question": {
+      "type": "object",
+      "required": ["question_id", "question", "reason"],
+      "properties": {
+        "question_id": { "type": "string" },
+        "question": { "type": "string" },
+        "reason": { "type": "string" },
+        "answer": { "type": ["string", "null"] }
+      }
+    },
+    "evidence": {
+      "type": "object",
+      "required": ["evidence_id", "label", "text"],
+      "properties": {
+        "evidence_id": { "type": "string" },
+        "condition_id": { "type": ["string", "null"] },
+        "source_id": { "type": ["string", "null"] },
+        "label": { "type": "string" },
+        "text": { "type": "string" }
+      }
+    },
+    "differential_item": {
+      "type": "object",
+      "required": ["condition_id", "rank", "evidence_strength", "uncertainty"],
+      "properties": {
+        "condition_id": { "type": "string" },
+        "rank": { "type": "integer" },
+        "evidence_strength": { "type": "string" },
+        "uncertainty": { "type": "string" },
+        "supporting_evidence_ids": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "conflicting_evidence_ids": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "confirmation_status": { "type": "string" }
+      }
+    }
+  }
+}

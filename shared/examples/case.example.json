@@ -1,0 +1,26 @@
+{
+  "case_id": "CASE_001",
+  "fish": {
+    "species": "Nile tilapia",
+    "life_stage": null
+  },
+  "images": [],
+  "observations": {
+    "visual": [],
+    "behavioral": ["reduced appetite", "surface gasping"]
+  },
+  "water_quality": {
+    "temperature_c": null,
+    "ph": null,
+    "dissolved_oxygen_mg_l": null,
+    "ammonia_mg_l": null,
+    "nitrite_mg_l": null,
+    "nitrate_mg_l": null
+  },
+  "history": {},
+  "agent_questions": [],
+  "retrieved_evidence": [],
+  "differential": [],
+  "recommended_actions": [],
+  "escalation": []
+}
