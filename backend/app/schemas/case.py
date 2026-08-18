@@ -42,6 +42,15 @@ class AgentQuestion(BaseModel):
     answer: str | None = None
 
 
+class FollowUpAnswer(BaseModel):
+    question_id: str
+    answer: str
+
+
+class FollowUpAnswers(BaseModel):
+    answers: list[FollowUpAnswer]
+
+
 class DifferentialItem(BaseModel):
     condition_id: str
     rank: int
@@ -60,6 +69,13 @@ class CaseCreate(BaseModel):
     history: dict[str, str | int | float | bool | None] = Field(default_factory=dict)
 
 
+class CaseUpdate(BaseModel):
+    fish: FishInfo | None = None
+    observations: Observations | None = None
+    water_quality: WaterQuality | None = None
+    history: dict[str, str | int | float | bool | None] | None = None
+
+
 class CaseRecord(CaseCreate):
     case_id: str
     agent_questions: list[AgentQuestion] = Field(default_factory=list)
@@ -73,3 +89,7 @@ class CaseReport(BaseModel):
     case: CaseRecord
     status: str
     summary: str
+
+
+class ApiError(BaseModel):
+    detail: str

@@ -1,0 +1,114 @@
+{
+  "info": {
+    "name": "FinSight Backend Mock API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8000/api/v1"
+    },
+    {
+      "key": "case_id",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "Health Check",
+      "request": {
+        "method": "GET",
+        "url": "{{base_url}}/health"
+      }
+    },
+    {
+      "name": "Create Case",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"observations\": {\n    \"visual\": [\"red patches near gills\"],\n    \"behavioral\": [\"surface gasping\", \"reduced appetite\"]\n  },\n  \"water_quality\": {\n    \"temperature_c\": 29.0,\n    \"ph\": 7.2,\n    \"dissolved_oxygen_mg_l\": null,\n    \"ammonia_mg_l\": null,\n    \"nitrite_mg_l\": null,\n    \"nitrate_mg_l\": null\n  },\n  \"history\": {\n    \"symptom_duration_days\": 2\n  }\n}"
+        },
+        "url": "{{base_url}}/cases"
+      }
+    },
+    {
+      "name": "Get Case",
+      "request": {
+        "method": "GET",
+        "url": "{{base_url}}/cases/{{case_id}}"
+      }
+    },
+    {
+      "name": "Update Case",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"history\": {\n    \"recent_transport\": true,\n    \"mortality_trend\": \"two fish died overnight\"\n  }\n}"
+        },
+        "url": "{{base_url}}/cases/{{case_id}}"
+      }
+    },
+    {
+      "name": "Upload Case Image",
+      "request": {
+        "method": "POST",
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "file",
+              "type": "file",
+              "src": []
+            }
+          ]
+        },
+        "url": "{{base_url}}/cases/{{case_id}}/images"
+      }
+    },
+    {
+      "name": "Generate Follow Up",
+      "request": {
+        "method": "POST",
+        "url": "{{base_url}}/cases/{{case_id}}/follow-up"
+      }
+    },
+    {
+      "name": "Answer Follow Up",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"answers\": [\n    {\n      \"question_id\": \"Q_001\",\n      \"answer\": \"3.2 mg/L\"\n    },\n    {\n      \"question_id\": \"Q_002\",\n      \"answer\": \"0.25 mg/L\"\n    }\n  ]\n}"
+        },
+        "url": "{{base_url}}/cases/{{case_id}}/follow-up/answers"
+      }
+    },
+    {
+      "name": "Generate Report",
+      "request": {
+        "method": "POST",
+        "url": "{{base_url}}/cases/{{case_id}}/report"
+      }
+    }
+  ]
+}

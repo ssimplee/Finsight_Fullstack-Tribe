@@ -12,12 +12,20 @@ frontend
 
 ## Directory Ownership
 
-- `backend/`: Member 1, with integration hooks for Members 3 and 4.
+- `backend/`: Member 1, with integration hooks for Member 3 and Member 4.
 - `frontend/`: Member 5.
 - `shared/`: Member 1 owns contract stability; all members consume it.
 - `data/`: Member 2.
 - `docs/`: shared planning and API notes.
 - `infra/`: deployment and environment setup.
+
+## Team Mapping
+
+- Member 1: Harry
+- Member 2: JS
+- Member 3: ShaoYou
+- Member 4: Ziqing
+- Member 5: beopgi
 
 ## First Milestone
 

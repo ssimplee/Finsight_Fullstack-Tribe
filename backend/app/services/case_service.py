@@ -2,7 +2,17 @@ from uuid import uuid4
 
 from fastapi import UploadFile
 
-from app.schemas.case import AgentQuestion, CaseCreate, CaseImage, CaseRecord, CaseReport
+from app.schemas.case import (
+    AgentQuestion,
+    CaseCreate,
+    CaseImage,
+    CaseRecord,
+    CaseReport,
+    CaseUpdate,
+    DifferentialItem,
+    EvidenceItem,
+    FollowUpAnswers,
+)
 
 
 class CaseService:
@@ -18,6 +28,22 @@ class CaseService:
     def get_case(self, case_id: str) -> CaseRecord | None:
         return self._cases.get(case_id)
 
+    def update_case(self, case_id: str, payload: CaseUpdate) -> CaseRecord | None:
+        case = self.get_case(case_id)
+        if case is None:
+            return None
+
+        if payload.fish is not None:
+            case.fish = payload.fish
+        if payload.observations is not None:
+            case.observations = payload.observations
+        if payload.water_quality is not None:
+            case.water_quality = payload.water_quality
+        if payload.history is not None:
+            case.history = payload.history
+
+        return case
+
     async def attach_image(self, case_id: str, file: UploadFile) -> CaseRecord | None:
         case = self.get_case(case_id)
         if case is None:
@@ -26,8 +52,57 @@ class CaseService:
         image = CaseImage(
             image_id=f"IMG_{uuid4().hex[:8].upper()}",
             filename=file.filename or "upload",
+            visible_findings=["pending_qwen_observation"],
         )
         case.images.append(image)
+        return case
+
+    def generate_follow_up_questions(self, case_id: str) -> list[AgentQuestion] | None:
+        case = self.get_case(case_id)
+        if case is None:
+            return None
+
+        if not case.agent_questions:
+            questions = []
+            if case.water_quality.dissolved_oxygen_mg_l is None:
+                questions.append(
+                    AgentQuestion(
+                        question_id="Q_001",
+                        question="What is the dissolved oxygen level?",
+                        reason="Low dissolved oxygen can explain respiratory distress and surface gasping.",
+                    )
+                )
+            if case.water_quality.ammonia_mg_l is None:
+                questions.append(
+                    AgentQuestion(
+                        question_id="Q_002",
+                        question="What is the ammonia level?",
+                        reason="Ammonia stress can overlap with infectious disease signs and changes safe actions.",
+                    )
+                )
+            questions.append(
+                AgentQuestion(
+                    question_id=f"Q_{len(questions) + 1:03}",
+                    question="Have mortality, stocking density, or recent handling conditions changed?",
+                    reason="Recent stressors help separate infectious causes from water-quality stress.",
+                )
+            )
+            case.agent_questions.extend(questions[:3])
+
+        return case.agent_questions
+
+    def answer_follow_up_questions(
+        self, case_id: str, payload: FollowUpAnswers
+    ) -> CaseRecord | None:
+        case = self.get_case(case_id)
+        if case is None:
+            return None
+
+        answers_by_id = {item.question_id: item.answer for item in payload.answers}
+        for question in case.agent_questions:
+            if question.question_id in answers_by_id:
+                question.answer = answers_by_id[question.question_id]
+
         return case
 
     def generate_report(self, case_id: str) -> CaseReport | None:
@@ -35,26 +110,71 @@ class CaseService:
         if case is None:
             return None
 
-        if not case.agent_questions:
-            case.agent_questions.extend(
+        self.generate_follow_up_questions(case_id)
+        answered_questions = [question for question in case.agent_questions if question.answer]
+
+        if len(answered_questions) < 2:
+            return CaseReport(
+                case=case,
+                status="needs_follow_up",
+                summary="At least two follow-up answers are required before mock differential ranking.",
+            )
+
+        if not case.retrieved_evidence:
+            case.retrieved_evidence.extend(
                 [
-                    AgentQuestion(
-                        question_id="Q_001",
-                        question="What is the dissolved oxygen level?",
-                        reason="Low dissolved oxygen can explain respiratory distress and surface gasping.",
+                    EvidenceItem(
+                        evidence_id="KB_MOCK_001",
+                        condition_id="D05",
+                        source_id="SRC_PENDING",
+                        label="RETRIEVED EVIDENCE",
+                        text="Low oxygen or poor water conditions can cause respiratory distress and surface gasping.",
                     ),
-                    AgentQuestion(
-                        question_id="Q_002",
-                        question="Have mortality, stocking density, or recent handling conditions changed?",
-                        reason="Recent stressors help separate infectious causes from water-quality stress.",
+                    EvidenceItem(
+                        evidence_id="KB_MOCK_002",
+                        condition_id="D02",
+                        source_id="SRC_PENDING",
+                        label="RETRIEVED EVIDENCE",
+                        text="Ulcers, scale loss, and lethargy may support bacterial disease when water stress does not fully explain the case.",
                     ),
                 ]
             )
 
+        if not case.differential:
+            case.differential.extend(
+                [
+                    DifferentialItem(
+                        condition_id="D05",
+                        rank=1,
+                        evidence_strength="moderate",
+                        uncertainty="moderate",
+                        supporting_evidence_ids=["KB_MOCK_001"],
+                        conflicting_evidence_ids=[],
+                    ),
+                    DifferentialItem(
+                        condition_id="D02",
+                        rank=2,
+                        evidence_strength="weak",
+                        uncertainty="high",
+                        supporting_evidence_ids=["KB_MOCK_002"],
+                        conflicting_evidence_ids=["KB_MOCK_001"],
+                    ),
+                ]
+            )
+            case.recommended_actions.extend(
+                [
+                    "Confirm missing water-quality readings before treatment decisions.",
+                    "Improve aeration and monitor affected fish while awaiting confirmed evidence.",
+                ]
+            )
+            case.escalation.append(
+                "Contact an aquatic animal health professional if mortality increases or severe lesions are present."
+            )
+
         return CaseReport(
             case=case,
-            status="needs_follow_up",
-            summary="Initial case created. Follow-up answers and RAG evidence are required before ranking causes.",
+            status="mock_report_ready",
+            summary="Mock report generated. Replace mock evidence with Member 2 data, Member 3 Qwen observations, and Member 4 RAG reasoning.",
         )
 
 
