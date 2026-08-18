@@ -568,6 +568,43 @@ demo flow
 
 ---
 
+
+# 9A. Recommended Start Order
+
+The team does **not** need to wait for one member to fully finish before the others begin.
+
+Recommended order:
+
+```text
+1. Member 2 starts first
+   Finalise the fish scope, 5 conditions, key sources, sample images and a few sample cases.
+
+2. Member 1 starts once the shared case/data format is agreed
+   Build the backend/API using mock data if needed.
+
+3. Member 3 can start early
+   Once Member 2 provides 1–2 sample images and expected observations, begin Qwen image-analysis testing.
+
+4. Member 4 follows once the first disease profiles / knowledge chunks are ready
+   Build RAG, retrieval, follow-up logic and differential reasoning.
+
+5. Member 5 can start in parallel using mock JSON
+   Build the frontend and report UI before the real AI pipeline is fully connected.
+```
+
+Dependency view:
+
+```text
+                 ┌→ Member 3: Qwen / image analysis
+Member 2 ────────┼→ Member 4: RAG + reasoning
+     │           │
+     └→ shared data format → Member 1: backend / integration
+                                  │
+                                  └→ Member 5: frontend / report
+```
+
+The key first step is for **Member 2 and Member 1 to agree on the shared case schema**, after which most of the team can work in parallel.
+
 # 10. Development Order
 
 Do not build everything separately and integrate at the end.
