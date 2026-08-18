@@ -1,3 +1,4 @@
+import os
 from uuid import uuid4
 
 from fastapi import UploadFile
@@ -13,6 +14,15 @@ from app.schemas.case import (
     EvidenceItem,
     FollowUpAnswers,
 )
+
+# Member 4 real RAG is opt-in (env FINSIGHT_USE_RAG=1). Default uses the mock
+# workflow so Member 1's tests and envs without chromadb keep working.
+_USE_REAL_RAG = os.environ.get("FINSIGHT_USE_RAG", "").lower() in ("1", "true", "yes")
+
+try:
+    from app.services.rag_service import rag_service
+except Exception:  # RAG deps (chromadb/sentence-transformers) not installed
+    rag_service = None
 
 
 class CaseService:
@@ -63,6 +73,14 @@ class CaseService:
             return None
 
         if not case.agent_questions:
+            # Member 4 real RAG follow-ups (falls back to mock if unavailable)
+            if _USE_REAL_RAG and rag_service is not None:
+                try:
+                    case.agent_questions.extend(rag_service.generate_follow_ups(case))
+                    return case.agent_questions
+                except Exception:
+                    pass  # fall through to mock
+
             questions = []
             if case.water_quality.dissolved_oxygen_mg_l is None:
                 questions.append(
@@ -117,9 +135,17 @@ class CaseService:
             return CaseReport(
                 case=case,
                 status="needs_follow_up",
-                summary="At least two follow-up answers are required before mock differential ranking.",
+                summary="At least two follow-up answers are required before differential ranking.",
             )
 
+        # Member 4 real RAG (falls back to mock if RAG deps unavailable)
+        if _USE_REAL_RAG and rag_service is not None:
+            try:
+                return rag_service.build_report(case)
+            except Exception:
+                pass  # fall through to mock
+
+        # --- mock fallback (original Member 1 logic) ---
         if not case.retrieved_evidence:
             case.retrieved_evidence.extend(
                 [
