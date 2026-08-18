@@ -1,0 +1,32 @@
+{
+  "case_id": "CASE_004",
+  "fish": {"species": "Nile tilapia", "life_stage": "fingerling"},
+  "images": [],
+  "observations": {
+    "visual": ["eye opacity", "skin erosion", "abdominal distension"],
+    "behavioral": ["lethargy", "loss of appetite", "reduced schooling"]
+  },
+  "water_quality": {
+    "temperature_c": 29.0,
+    "ph": 7.3,
+    "dissolved_oxygen_mg_l": 5.8,
+    "ammonia_mg_l": 0.03,
+    "nitrite_mg_l": 0.0,
+    "nitrate_mg_l": 12.0
+  },
+  "history": {"symptom_duration_days": 5, "mortality_trend": "rapid increase", "recent_fish_introduction": true},
+  "agent_questions": [],
+  "retrieved_evidence": [],
+  "differential": [],
+  "recommended_actions": [],
+  "escalation": [],
+  "evaluation": {
+    "synthetic": true,
+    "case_type": "tilv_suspicion_not_confirmation",
+    "expected_follow_up_topics": ["source and quarantine of new fish", "mortality count", "availability of laboratory testing"],
+    "expected_top_condition_id": "D04",
+    "acceptable_alternatives": ["D01", "D02"],
+    "must_recommend_lab_confirmation": true,
+    "must_not_claim_confirmation": true
+  }
+}
