@@ -23,6 +23,10 @@ npm-debug.log*
 *.sqlite
 uploads/
 
+# Member 4 RAG runtime (Chroma vector DB + downloaded embedding model)
+four/fin_sight_db/
+four/models/
+
 # OS/editor
 .DS_Store
 Thumbs.db
