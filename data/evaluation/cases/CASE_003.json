@@ -1,0 +1,31 @@
+{
+  "case_id": "CASE_003",
+  "fish": {"species": "Nile tilapia", "life_stage": "juvenile"},
+  "images": [],
+  "observations": {
+    "visual": ["frayed fins", "irregular grey-white skin patches", "pale damaged gills"],
+    "behavioral": ["rapid breathing", "reduced activity"]
+  },
+  "water_quality": {
+    "temperature_c": 28.5,
+    "ph": 7.2,
+    "dissolved_oxygen_mg_l": 5.2,
+    "ammonia_mg_l": null,
+    "nitrite_mg_l": null,
+    "nitrate_mg_l": null
+  },
+  "history": {"symptom_duration_days": 4, "stocking_density_change": "increased last week"},
+  "agent_questions": [],
+  "retrieved_evidence": [],
+  "differential": [],
+  "recommended_actions": [],
+  "escalation": [],
+  "evaluation": {
+    "synthetic": true,
+    "case_type": "columnaris_pattern",
+    "expected_follow_up_topics": ["ammonia and nitrite", "recent handling", "spread of gill lesions"],
+    "expected_top_condition_id": "D03",
+    "acceptable_alternatives": ["D02", "D05"],
+    "must_not_claim_confirmation": true
+  }
+}

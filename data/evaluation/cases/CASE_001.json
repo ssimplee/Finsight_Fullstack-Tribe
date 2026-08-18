@@ -1,0 +1,141 @@
+{
+  "case_id": "CASE_001",
+  "fish": {"species": "Nile tilapia", "life_stage": "grow-out"},
+  "images": [
+    {
+      "image_id": "IMG_D01_001",
+      "filename": "data/images/streptococcosis/IMG_D01_001.png",
+      "visible_findings": ["bulging eye", "opaque eye", "eye haemorrhage"],
+      "source": "SRC_IMG_STREP_001"
+    }
+  ],
+  "observations": {
+    "visual": ["bulging opaque haemorrhagic eye"],
+    "behavioral": ["circling", "loss of balance", "reduced appetite"]
+  },
+  "water_quality": {
+    "temperature_c": 30.5,
+    "ph": 7.5,
+    "dissolved_oxygen_mg_l": null,
+    "ammonia_mg_l": null,
+    "nitrite_mg_l": null,
+    "nitrate_mg_l": null
+  },
+  "history": {"symptom_duration_days": 3, "mortality_trend": "increasing", "recent_handling": true},
+  "agent_questions": [],
+  "retrieved_evidence": [],
+  "differential": [],
+  "recommended_actions": [],
+  "escalation": [],
+  "evaluation": {
+    "synthetic": true,
+    "case_type": "incomplete_streptococcosis_pattern",
+    "expected_follow_up_topics": ["dissolved oxygen", "ammonia and nitrite", "mortality count"],
+    "follow_up_script": [
+      {
+        "question": "What is the dissolved oxygen level?",
+        "answer": "5.7 mg/L"
+      },
+      {
+        "question": "What are the latest ammonia and nitrite readings?",
+        "answer": "Unionised ammonia (NH3) is 0.03 mg/L and nitrite is 0.05 mg/L."
+      },
+      {
+        "question": "How many fish have died, and how quickly is mortality changing?",
+        "answer": "18 of 200 fish have died over 3 days, with more deaths each day."
+      }
+    ],
+    "follow_up_water_quality": {
+      "dissolved_oxygen_mg_l": 5.7,
+      "ammonia_mg_l": 0.03,
+      "ammonia_measurement_basis": "unionised NH3",
+      "nitrite_mg_l": 0.05,
+      "nitrate_mg_l": 14.0
+    },
+    "follow_up_mortality": {
+      "dead_fish": 18,
+      "population": 200,
+      "period_days": 3,
+      "trend": "increasing"
+    },
+    "expected_retrieved_evidence_ids": [
+      "KB_D01_001",
+      "KB_D01_002",
+      "KB_D01_003",
+      "KB_D01_004",
+      "KB_D02_001",
+      "KB_D04_001",
+      "KB_D05_001"
+    ],
+    "expected_top_condition_id": "D01",
+    "acceptable_alternatives": ["D02", "D04", "D05"],
+    "expected_ranked_differential": [
+      {
+        "rank": 1,
+        "condition_id": "D01",
+        "evidence_strength": "strong",
+        "uncertainty": "moderate",
+        "supporting_evidence_ids": ["KB_D01_001", "KB_D01_002", "KB_D01_003"],
+        "conflicting_evidence_ids": [],
+        "confirmation_status": "unconfirmed"
+      },
+      {
+        "rank": 2,
+        "condition_id": "D04",
+        "evidence_strength": "moderate",
+        "uncertainty": "high",
+        "supporting_evidence_ids": ["KB_D04_001"],
+        "conflicting_evidence_ids": [],
+        "confirmation_status": "unconfirmed"
+      },
+      {
+        "rank": 3,
+        "condition_id": "D02",
+        "evidence_strength": "weak",
+        "uncertainty": "high",
+        "supporting_evidence_ids": ["KB_D02_001"],
+        "conflicting_evidence_ids": [],
+        "confirmation_status": "unconfirmed"
+      },
+      {
+        "rank": 4,
+        "condition_id": "D05",
+        "evidence_strength": "weak",
+        "uncertainty": "moderate",
+        "supporting_evidence_ids": [],
+        "conflicting_evidence_ids": ["KB_D05_001", "FOLLOWUP_DO_001"],
+        "confirmation_status": "current readings do not show low dissolved oxygen"
+      }
+    ],
+    "expected_observation_evidence": [
+      {
+        "evidence_id": "OBS_001",
+        "label": "OBSERVED",
+        "text": "The image shows a bulging, opaque and haemorrhagic eye."
+      },
+      {
+        "evidence_id": "OBS_002",
+        "label": "USER-REPORTED",
+        "text": "The fish are circling, losing balance and eating less."
+      },
+      {
+        "evidence_id": "FOLLOWUP_DO_001",
+        "label": "USER-REPORTED",
+        "text": "Dissolved oxygen was reported as 5.7 mg/L after follow-up."
+      }
+    ],
+    "expected_safe_actions": [
+      "Continue recording mortality and abnormal behaviour.",
+      "Recheck dissolved oxygen, ammonia and nitrite if conditions change.",
+      "Reduce avoidable handling stress.",
+      "Contact an aquatic veterinarian or fish-health laboratory for examination and bacterial culture."
+    ],
+    "expected_escalation": [
+      "Seek prompt professional help because mortality is increasing and multiple fish show severe abnormal swimming and eye lesions."
+    ],
+    "expected_confirmation": [
+      "Examine affected fish and perform bacterial culture and identification using appropriate internal-organ samples, especially brain and kidney."
+    ],
+    "must_not_claim_confirmation": true
+  }
+}
