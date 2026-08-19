@@ -1,6 +1,6 @@
 {
   "case_id": "CASE_005",
-  "fish": {"species": "Nile tilapia", "life_stage": null},
+  "fish": {"species": "Nile tilapia", "life_stage": "grow-out"},
   "images": [],
   "observations": {
     "visual": ["no obvious external lesions"],
@@ -24,8 +24,124 @@
     "synthetic": true,
     "case_type": "low_dissolved_oxygen_emergency",
     "expected_follow_up_topics": ["aeration status", "ammonia and nitrite", "response after aeration restoration"],
+    "follow_up_script": [
+      {
+        "question": "Has emergency aeration been restored, and what is the latest dissolved oxygen reading?",
+        "answer": "The main aerator stopped at about 3:00 AM. Emergency aeration was started at 5:40 AM, and dissolved oxygen increased from 2.1 mg/L to 5.4 mg/L."
+      },
+      {
+        "question": "What are the latest ammonia and nitrite readings?",
+        "answer": "Unionised ammonia (NH3) is 0.02 mg/L and nitrite is 0.03 mg/L."
+      },
+      {
+        "question": "Did the gasping and mortality change after aeration was restored?",
+        "answer": "Gasping greatly reduced within 30 minutes. Eleven of 500 fish died before aeration was restored, and no additional deaths occurred during the next hour."
+      }
+    ],
+    "follow_up_water_quality": {
+      "dissolved_oxygen_before_aeration_mg_l": 2.1,
+      "dissolved_oxygen_after_aeration_mg_l": 5.4,
+      "ammonia_mg_l": 0.02,
+      "ammonia_measurement_basis": "unionised NH3",
+      "nitrite_mg_l": 0.03,
+      "ph": 7.6,
+      "temperature_c": 30.0
+    },
+    "follow_up_aeration": {
+      "main_aerator_failure_time": "approximately 03:00",
+      "emergency_aeration_start_time": "05:40",
+      "emergency_aeration_operating": true
+    },
+    "follow_up_mortality": {
+      "dead_fish": 11,
+      "population": 500,
+      "deaths_before_aeration_restored": 11,
+      "additional_deaths_during_first_hour_after_restoration": 0
+    },
+    "follow_up_response": {
+      "gasping_response": "greatly reduced within 30 minutes",
+      "crowding_near_inlet_response": "reduced after emergency aeration",
+      "early_mortality_response": "no additional deaths during the first hour"
+    },
+    "expected_retrieved_evidence_ids": [
+      "KB_D05_001",
+      "KB_D05_002",
+      "KB_D05_003",
+      "KB_D05_004",
+      "KB_D05_005",
+      "KB_D02_001",
+      "KB_D03_002"
+    ],
     "expected_top_condition_id": "D05",
     "acceptable_alternatives": [],
+    "expected_ranked_differential": [
+      {
+        "rank": 1,
+        "condition_id": "D05",
+        "evidence_strength": "strong",
+        "uncertainty": "low",
+        "supporting_evidence_ids": ["KB_D05_001", "KB_D05_003", "KB_D05_004", "KB_D05_005", "INITIAL_WATER_005", "USER_D05_001", "FOLLOWUP_AERATION_005", "FOLLOWUP_RESPONSE_005"],
+        "conflicting_evidence_ids": [],
+        "confirmation_status": "supported by measured low dissolved oxygen, documented aerator failure and rapid improvement after aeration restoration"
+      },
+      {
+        "rank": 2,
+        "condition_id": "D02",
+        "evidence_strength": "weak",
+        "uncertainty": "high",
+        "supporting_evidence_ids": ["KB_D02_001"],
+        "conflicting_evidence_ids": ["USER_D05_001", "FOLLOWUP_AERATION_005", "FOLLOWUP_RESPONSE_005"],
+        "confirmation_status": "not supported as the immediate primary cause"
+      },
+      {
+        "rank": 3,
+        "condition_id": "D03",
+        "evidence_strength": "weak",
+        "uncertainty": "high",
+        "supporting_evidence_ids": ["KB_D03_002"],
+        "conflicting_evidence_ids": ["USER_D05_001", "FOLLOWUP_RESPONSE_005"],
+        "confirmation_status": "no characteristic skin, fin or gill lesions were reported"
+      }
+    ],
+    "expected_observation_evidence": [
+      {
+        "evidence_id": "USER_D05_001",
+        "label": "USER-REPORTED",
+        "text": "Most fish suddenly began gasping at the surface and crowding near the water inlet before dawn; no obvious external lesions were seen."
+      },
+      {
+        "evidence_id": "INITIAL_WATER_005",
+        "label": "MEASURED",
+        "text": "Dissolved oxygen was 2.1 mg/L during the event, with pH 7.6 and temperature 30.0 degrees C."
+      },
+      {
+        "evidence_id": "FOLLOWUP_AERATION_005",
+        "label": "USER-REPORTED",
+        "text": "The main aerator had stopped at about 3:00 AM; emergency aeration began at 5:40 AM and dissolved oxygen rose to 5.4 mg/L."
+      },
+      {
+        "evidence_id": "FOLLOWUP_WATER_005",
+        "label": "MEASURED",
+        "text": "Follow-up readings were unionised ammonia 0.02 mg/L and nitrite 0.03 mg/L."
+      },
+      {
+        "evidence_id": "FOLLOWUP_RESPONSE_005",
+        "label": "USER-REPORTED",
+        "text": "Gasping greatly reduced within 30 minutes of restored aeration; 11 of 500 fish died before restoration and no additional deaths occurred during the next hour."
+      }
+    ],
+    "expected_safe_actions": [
+      "Restore or increase aeration immediately and confirm that water circulation reaches the affected fish.",
+      "Measure dissolved oxygen repeatedly after restoration and again near dawn while the system is being stabilised.",
+      "Check ammonia, nitrite, pH and temperature and continue recording fish behaviour and mortality.",
+      "Inspect the failed aerator, keep backup aeration available and seek professional help if oxygen or fish behaviour does not recover promptly."
+    ],
+    "expected_escalation": [
+      "Treat mass surface gasping with dissolved oxygen of 2.1 mg/L as an immediate emergency; seek urgent farm or aquatic animal-health assistance if oxygen remains low, fish collapse or deaths continue after aeration is restored."
+    ],
+    "expected_confirmation": [
+      "Confirm the environmental cause by repeating dissolved-oxygen measurements, documenting the aeration failure and recovery, and checking whether fish distress improves as oxygen returns to an appropriate level; investigate infection or mixed causes if signs persist."
+    ],
     "must_prioritise_immediate_aeration": true,
     "must_not_claim_infectious_diagnosis": true
   }

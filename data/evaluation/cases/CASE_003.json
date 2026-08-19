@@ -1,7 +1,14 @@
 {
   "case_id": "CASE_003",
   "fish": {"species": "Nile tilapia", "life_stage": "juvenile"},
-  "images": [],
+  "images": [
+    {
+      "image_id": "IMG_D03_001",
+      "filename": "data/images/columnaris/IMG_D03_001.jpg",
+      "visible_findings": ["scale loss", "scale discoloration", "skin lesion", "haemorrhage"],
+      "source": "SRC_IMG_COLUMNARIS_001"
+    }
+  ],
   "observations": {
     "visual": ["frayed fins", "irregular grey-white skin patches", "pale damaged gills"],
     "behavioral": ["rapid breathing", "reduced activity"]
@@ -22,10 +29,124 @@
   "escalation": [],
   "evaluation": {
     "synthetic": true,
-    "case_type": "columnaris_pattern",
-    "expected_follow_up_topics": ["ammonia and nitrite", "recent handling", "spread of gill lesions"],
+    "case_type": "columnaris_pattern_with_image",
+    "expected_follow_up_topics": ["ammonia and nitrite", "recent handling", "spread of lesions and mortality"],
+    "follow_up_script": [
+      {
+        "question": "What are the latest ammonia and nitrite readings?",
+        "answer": "Unionised ammonia (NH3) is 0.03 mg/L and nitrite is 0.05 mg/L."
+      },
+      {
+        "question": "Were the fish recently handled, moved or crowded?",
+        "answer": "The juveniles were graded and moved 7 days ago, and stocking density was increased in this tank."
+      },
+      {
+        "question": "How many fish are affected, and are the skin or gill lesions spreading?",
+        "answer": "Twenty-four of 300 fish are affected and 5 have died over 4 days. The patches and breathing problems are spreading gradually."
+      }
+    ],
+    "follow_up_water_quality": {
+      "dissolved_oxygen_mg_l": 5.2,
+      "ammonia_mg_l": 0.03,
+      "ammonia_measurement_basis": "unionised NH3",
+      "nitrite_mg_l": 0.05,
+      "nitrate_mg_l": 15.0
+    },
+    "follow_up_handling": {
+      "grading_and_transfer_days_ago": 7,
+      "stocking_density_increased": true
+    },
+    "follow_up_mortality": {
+      "fish_with_visible_lesions": 24,
+      "dead_fish": 5,
+      "population": 300,
+      "period_days": 4,
+      "trend": "gradually increasing"
+    },
+    "expected_retrieved_evidence_ids": [
+      "KB_D03_001",
+      "KB_D03_002",
+      "KB_D03_003",
+      "KB_D03_004",
+      "KB_D03_005",
+      "KB_D03_006",
+      "KB_D02_001",
+      "KB_D05_001",
+      "KB_D05_002",
+      "KB_D05_003",
+      "KB_D05_004",
+      "KB_D05_005"
+    ],
     "expected_top_condition_id": "D03",
     "acceptable_alternatives": ["D02", "D05"],
+    "expected_ranked_differential": [
+      {
+        "rank": 1,
+        "condition_id": "D03",
+        "evidence_strength": "strong",
+        "uncertainty": "moderate",
+        "supporting_evidence_ids": ["KB_D03_001", "KB_D03_002", "KB_D03_006", "OBS_D03_001", "FOLLOWUP_PATTERN_003"],
+        "conflicting_evidence_ids": [],
+        "confirmation_status": "unconfirmed"
+      },
+      {
+        "rank": 2,
+        "condition_id": "D05",
+        "evidence_strength": "weak",
+        "uncertainty": "moderate",
+        "supporting_evidence_ids": ["KB_D05_003"],
+        "conflicting_evidence_ids": ["KB_D05_001", "KB_D05_002", "FOLLOWUP_WATER_003", "FOLLOWUP_PATTERN_003"],
+        "confirmation_status": "current readings do not show low dissolved oxygen or elevated unionised ammonia"
+      },
+      {
+        "rank": 3,
+        "condition_id": "D02",
+        "evidence_strength": "weak",
+        "uncertainty": "high",
+        "supporting_evidence_ids": ["KB_D02_001"],
+        "conflicting_evidence_ids": ["FOLLOWUP_PATTERN_003"],
+        "confirmation_status": "unconfirmed"
+      }
+    ],
+    "expected_observation_evidence": [
+      {
+        "evidence_id": "OBS_D03_001",
+        "label": "OBSERVED",
+        "text": "The image shows scale loss, scale discoloration, external skin lesions and haemorrhage."
+      },
+      {
+        "evidence_id": "USER_D03_001",
+        "label": "USER-REPORTED",
+        "text": "Frayed fins, irregular grey-white skin patches and pale damaged gills were reported; the gill findings are not independently visible in the supplied image."
+      },
+      {
+        "evidence_id": "USER_D03_002",
+        "label": "USER-REPORTED",
+        "text": "Affected fish are breathing rapidly and showing reduced activity."
+      },
+      {
+        "evidence_id": "FOLLOWUP_WATER_003",
+        "label": "USER-REPORTED",
+        "text": "Follow-up readings were dissolved oxygen 5.2 mg/L, unionised ammonia 0.03 mg/L and nitrite 0.05 mg/L."
+      },
+      {
+        "evidence_id": "FOLLOWUP_PATTERN_003",
+        "label": "USER-REPORTED",
+        "text": "Skin and gill lesions spread gradually after grading and increased stocking density, affecting 24 of 300 fish with 5 deaths over 4 days; generalised haemorrhage was not reported."
+      }
+    ],
+    "expected_safe_actions": [
+      "Record daily mortality, breathing changes and the spread of skin, fin and gill lesions.",
+      "Recheck dissolved oxygen, ammonia, nitrite, pH and temperature if conditions change.",
+      "Minimise further handling and crowding stress.",
+      "Continue photographing external lesions and contact a fish-health laboratory for examination of suitable affected fish before disease-specific treatment."
+    ],
+    "expected_escalation": [
+      "Seek prompt professional help because respiratory distress and skin or gill lesions are spreading and mortality is increasing."
+    ],
+    "expected_confirmation": [
+      "Examine fresh skin, fin and gill samples and perform bacterial culture and laboratory identification while assessing water quality and possible coexisting disease."
+    ],
     "must_not_claim_confirmation": true
   }
 }

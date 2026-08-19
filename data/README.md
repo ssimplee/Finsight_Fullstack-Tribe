@@ -9,7 +9,7 @@ Member 2 owns most of this folder. Member 1 should keep backend loaders compatib
 - `knowledge/conditions.json`: five scoped condition profiles.
 - `knowledge/sources.json`: source registry with stable IDs and locators.
 - `knowledge/knowledge_chunks.jsonl`: retrieval-ready evidence chunks.
-- `images/image_sources.json`: licensed candidate image sources; no clinical images are committed yet.
+- `images/image_sources.json`: provenance, licensing and checksums for the committed clinical images and any remaining candidates.
 - `evaluation/cases/`: synthetic cases for testing, not real clinical records.
 
 ## Safety and provenance
