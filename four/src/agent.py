@@ -9,7 +9,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 
-from . import differential, follow_up, missing_info, safety, uncertainty
+from . import contradiction, differential, follow_up, missing_info, safety, uncertainty
 from .differential import CONDITION_NAMES
 from .models import CaseRecord, CaseReport, EvidenceItem
 from .qwen_client import QwenClient
@@ -97,6 +97,9 @@ class Agent:
 
         # 8. Safety + actions
         summary = self._build_summary(case, diff, uncertainty_level)
+        contradictions = contradiction.detect(case)
+        if contradictions:
+            summary += " " + " ".join(contradictions)
         violations = safety.check_safety(summary)
         case.recommended_actions = safety.build_recommended_actions(case, diff)
         case.escalation = safety.build_escalation(diff)

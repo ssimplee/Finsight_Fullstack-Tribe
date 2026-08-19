@@ -21,14 +21,12 @@ CONDITION_NAMES = {
 # Weight of each evidence type when supporting a candidate condition.
 # Keys match the `label` values produced by retriever.EVIDENCE_TYPE_LABELS,
 # so a retrieved chunk's weight is looked up by its label, not its raw type.
+# Aligned with Member 2's real evidence_type vocabulary.
 EVIDENCE_WEIGHT = {
-    "symptom": 2.0,
+    "supporting evidence": 2.0,
     "risk factor": 1.5,
-    "water quality": 1.5,
     "confirmation": 1.0,
-    "differential": 0.5,
     "safe action": 0.5,
-    "escalation": 0.5,
     "conflicting evidence": -1.5,
 }
 

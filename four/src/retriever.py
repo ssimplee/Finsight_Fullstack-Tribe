@@ -13,14 +13,12 @@ from .ingest import COLLECTION_NAME, build_collection
 from .models import CaseRecord, EvidenceItem
 
 # Evidence-type vocabulary used to label retrieved chunks.
+# Aligned with Member 2's real knowledge_chunks.jsonl evidence_type values.
 EVIDENCE_TYPE_LABELS = {
-    "symptom": "symptom",
+    "supporting": "supporting evidence",
     "risk_factor": "risk factor",
-    "water_quality": "water quality",
-    "differential": "differential",
     "confirmation": "confirmation",
     "safe_action": "safe action",
-    "escalation": "escalation",
     "conflicting": "conflicting evidence",
 }
 

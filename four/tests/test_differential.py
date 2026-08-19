@@ -16,11 +16,11 @@ def test_symptom_hits_drive_score():
 def test_conflicting_evidence_lowers_score():
     case = CaseRecord(case_id="T", fish=FishInfo())
     ev = [
-        EvidenceItem(evidence_id="E1", condition_id="D02", label="symptom", text="ulcer"),
+        EvidenceItem(evidence_id="E1", condition_id="D02", label="supporting evidence", text="ulcer"),
         EvidenceItem(evidence_id="E2", condition_id="D02", label="conflicting evidence", text="x"),
     ]
     scores = differential.score(case, ev)
-    # symptom (+2) + conflicting (-1.5) = 0.5
+    # supporting (+2) + conflicting (-1.5) = 0.5
     assert scores["D02"] == 0.5
 
 
@@ -30,7 +30,7 @@ def test_rank_returns_sorted_items():
         fish=FishInfo(),
         observations=Observations(visual=["flank ulcer"], behavioral=[]),
     )
-    ev = [EvidenceItem(evidence_id="E1", condition_id="D02", label="symptom", text="ulcer")]
+    ev = [EvidenceItem(evidence_id="E1", condition_id="D02", label="supporting evidence", text="ulcer")]
     items, _ = differential.rank(case, ev)
     assert items
     assert items[0].rank == 1
@@ -42,7 +42,7 @@ def test_rank_returns_sorted_items():
 def test_supporting_and_conflicting_classification():
     case = CaseRecord(case_id="T", fish=FishInfo())
     ev = [
-        EvidenceItem(evidence_id="E1", condition_id="D01", label="symptom", text="x"),
+        EvidenceItem(evidence_id="E1", condition_id="D01", label="supporting evidence", text="x"),
         EvidenceItem(evidence_id="E2", condition_id="D01", label="conflicting evidence", text="y"),
     ]
     items, _ = differential.rank(case, ev)

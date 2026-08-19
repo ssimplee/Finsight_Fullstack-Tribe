@@ -1,7 +1,12 @@
 """Knowledge ingestion: read knowledge_chunks.jsonl -> embed -> ChromaDB.
 
+Defaults to the real Member 2 data at <repo>/data/knowledge/knowledge_chunks.jsonl
+and enriches metadata with condition name / source title from conditions.json
+and sources.json so the report can show human-readable attribution.
+
 Usage:
-    python -m src.ingest --data mock_kb/knowledge_chunks.jsonl
+    python -m src.ingest                              # real data (default)
+    python -m src.ingest --data mock_kb/knowledge_chunks.jsonl   # mock fallback
 """
 from __future__ import annotations
 
@@ -13,11 +18,26 @@ from pathlib import Path
 import chromadb
 from chromadb.utils import embedding_functions
 
-# Default paths are relative to the `four/` directory.
+_REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 DEFAULT_DB_PATH = "fin_sight_db"
 COLLECTION_NAME = "fish_disease_kb"
 REMOTE_MODEL_NAME = "all-MiniLM-L6-v2"
 LOCAL_MODEL_DIR = os.path.join(os.path.dirname(__file__), "..", "models", "all-MiniLM-L6-v2")
+DEFAULT_DATA = os.path.join(_REPO_ROOT, "data", "knowledge", "knowledge_chunks.jsonl")
+
+# Metadata fields copied into the vector DB so the retriever can filter and the
+# report can show source attribution. Aligned with Member 2's real schema:
+# chunk_id / condition_id / topic / text / source_id / locator / evidence_type.
+META_FIELDS = [
+    "chunk_id",
+    "condition_id",
+    "condition_name",
+    "evidence_type",
+    "source_id",
+    "source_title",
+    "topic",
+    "locator",
+]
 
 
 def resolve_model_name() -> str:
@@ -30,17 +50,26 @@ def resolve_model_name() -> str:
         return local
     return REMOTE_MODEL_NAME
 
-# Metadata fields copied into the vector DB so the retriever can filter.
-META_FIELDS = [
-    "chunk_id",
-    "condition_id",
-    "condition_name",
-    "evidence_type",
-    "source_id",
-    "source_title",
-    "section",
-    "source_url",
-]
+
+def _load_name_maps(repo_root: str) -> tuple[dict[str, str], dict[str, str]]:
+    """Load condition_id->name and source_id->title for human-readable metadata."""
+    cond_name: dict[str, str] = {}
+    src_title: dict[str, str] = {}
+    cond_path = os.path.join(repo_root, "data", "knowledge", "conditions.json")
+    src_path = os.path.join(repo_root, "data", "knowledge", "sources.json")
+    try:
+        with open(cond_path, encoding="utf-8") as f:
+            for c in json.load(f):
+                cond_name[c.get("condition_id", "")] = c.get("name", "")
+    except (FileNotFoundError, json.JSONDecodeError):
+        pass
+    try:
+        with open(src_path, encoding="utf-8") as f:
+            for s in json.load(f):
+                src_title[s.get("source_id", "")] = s.get("title", "")
+    except (FileNotFoundError, json.JSONDecodeError):
+        pass
+    return cond_name, src_title
 
 
 def load_chunks(path: str) -> list[dict]:
@@ -79,34 +108,42 @@ def ingest(data_file: str, db_path: str = DEFAULT_DB_PATH) -> int:
         print("[warn] no chunks loaded, nothing to ingest")
         return 0
 
-    collection = build_collection(db_path)
+    cond_name, src_title = _load_name_maps(_REPO_ROOT)
 
-    docs: list[str] = []
-    metadatas: list[dict] = []
-    ids: list[str] = []
+    collection = build_collection(db_path)
+    docs, metadatas, ids = [], [], []
     for chunk in chunks:
         docs.append(chunk["text"])
-        metadata = {k: chunk.get(k, "") for k in META_FIELDS}
+        cid = chunk.get("condition_id", "")
+        sid = chunk.get("source_id", "")
+        metadata = {
+            "chunk_id": chunk.get("chunk_id", ""),
+            "condition_id": cid,
+            "condition_name": cond_name.get(cid, ""),
+            "evidence_type": chunk.get("evidence_type", ""),
+            "source_id": sid,
+            "source_title": src_title.get(sid, ""),
+            "topic": chunk.get("topic", ""),
+            "locator": chunk.get("locator", ""),
+        }
         metadatas.append(metadata)
         ids.append(chunk.get("chunk_id", f"chunk_{len(ids)}"))
 
     collection.upsert(documents=docs, metadatas=metadatas, ids=ids)
-    print(f"[ok] ingested {len(docs)} chunks into collection '{COLLECTION_NAME}'")
+    print(f"[ok] ingested {len(docs)} chunks into '{COLLECTION_NAME}'")
     print(f"[ok] db path: {os.path.abspath(db_path)}")
     return len(docs)
 
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Ingest knowledge chunks into ChromaDB")
-    parser.add_argument("--data", default="mock_kb/knowledge_chunks.jsonl")
+    parser.add_argument("--data", default=DEFAULT_DATA)
     parser.add_argument("--db", default=DEFAULT_DB_PATH)
     args = parser.parse_args()
-
     data = Path(args.data)
     if not data.exists():
         print(f"[error] data file not found: {data}")
         raise SystemExit(1)
-
     ingest(str(data), args.db)
 
 
