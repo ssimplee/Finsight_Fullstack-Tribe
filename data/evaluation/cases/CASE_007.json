@@ -1,0 +1,175 @@
+{
+  "case_id": "CASE_007",
+  "fish": {"species": "Nile tilapia", "life_stage": "adult"},
+  "images": [
+    {
+      "image_id": "IMG_D02_001",
+      "filename": "data/images/aeromonas/IMG_D02_001.jpg",
+      "visible_findings": ["skin haemorrhagic lesion", "opercular haemorrhage", "exophthalmia", "scale loss", "tail erosion"],
+      "source": "SRC_IMG_AERO_001"
+    }
+  ],
+  "observations": {
+    "visual": ["haemorrhagic skin lesions", "exophthalmia", "scale loss", "tail erosion"],
+    "behavioral": ["widespread surface gasping", "crowding near aeration", "lethargy"]
+  },
+  "water_quality": {
+    "temperature_c": 30.0,
+    "ph": 7.8,
+    "dissolved_oxygen_mg_l": 2.3,
+    "ammonia_mg_l": 0.04,
+    "nitrite_mg_l": 0.03,
+    "nitrate_mg_l": 14.0
+  },
+  "history": {
+    "onset_of_gasping": "sudden before dawn",
+    "lesion_duration_days": 3,
+    "aerator_output": "weak",
+    "affected_distribution": "gasping affects most fish; lesions affect a smaller group"
+  },
+  "agent_questions": [],
+  "retrieved_evidence": [],
+  "differential": [],
+  "recommended_actions": [],
+  "escalation": [],
+  "evaluation": {
+    "synthetic": true,
+    "case_type": "disease_signs_with_low_dissolved_oxygen_emergency",
+    "expected_follow_up_topics": ["oxygen response after emergency aeration", "timing and spread of lesions", "mortality pattern"],
+    "follow_up_script": [
+      {
+        "question": "Has emergency aeration been started, what is the latest dissolved oxygen reading and has the gasping improved?",
+        "answer": "Emergency aeration was started immediately. Dissolved oxygen increased from 2.3 mg/L to 5.3 mg/L, and widespread gasping greatly reduced within 25 minutes."
+      },
+      {
+        "question": "Did the skin lesions begin before the gasping event, and were the fish recently handled or injured?",
+        "answer": "The lesions began gradually 3 days before the gasping event. The fish were netted and graded 7 days ago, and some had small abrasions afterward."
+      },
+      {
+        "question": "How many fish have lesions, how many died and did mortality continue after oxygen improved?",
+        "answer": "Fifteen of 250 fish have visible lesions. Eight fish died during the low-oxygen event, and no additional deaths occurred during the first hour after oxygen improved."
+      }
+    ],
+    "follow_up_water_quality": {
+      "dissolved_oxygen_before_aeration_mg_l": 2.3,
+      "dissolved_oxygen_after_aeration_mg_l": 5.3,
+      "ammonia_mg_l": 0.04,
+      "ammonia_measurement_basis": "unionised NH3",
+      "nitrite_mg_l": 0.03,
+      "nitrate_mg_l": 14.0,
+      "ph": 7.8,
+      "temperature_c": 30.0
+    },
+    "follow_up_handling": {
+      "netting_and_grading_days_ago": 7,
+      "skin_abrasions_observed": true,
+      "lesions_began_before_gasping": true
+    },
+    "follow_up_mortality": {
+      "fish_with_visible_lesions": 15,
+      "dead_fish_during_low_oxygen_event": 8,
+      "population": 250,
+      "additional_deaths_during_first_hour_after_oxygen_improved": 0
+    },
+    "follow_up_response": {
+      "gasping_response": "greatly reduced within 25 minutes",
+      "external_lesions_response": "still present after oxygen improved"
+    },
+    "expected_retrieved_evidence_ids": [
+      "KB_D05_001",
+      "KB_D05_002",
+      "KB_D05_003",
+      "KB_D05_004",
+      "KB_D05_005",
+      "KB_D02_001",
+      "KB_D02_002",
+      "KB_D02_003",
+      "KB_D02_005",
+      "KB_D02_006",
+      "KB_D02_007",
+      "KB_D03_001"
+    ],
+    "expected_top_condition_id": "D05",
+    "expected_concurrent_condition_id": "D02",
+    "acceptable_alternatives": ["D02"],
+    "expected_ranked_differential": [
+      {
+        "rank": 1,
+        "condition_id": "D05",
+        "evidence_strength": "strong",
+        "uncertainty": "low",
+        "supporting_evidence_ids": ["KB_D05_001", "KB_D05_003", "KB_D05_004", "KB_D05_005", "INITIAL_WATER_007", "USER_D07_001", "FOLLOWUP_AERATION_007", "FOLLOWUP_RESPONSE_007"],
+        "conflicting_evidence_ids": ["OBS_D07_001", "FOLLOWUP_LESIONS_007"],
+        "confirmation_status": "supported as the immediate cause of widespread gasping, but it does not explain the persistent external lesions"
+      },
+      {
+        "rank": 2,
+        "condition_id": "D02",
+        "evidence_strength": "moderate",
+        "uncertainty": "moderate",
+        "supporting_evidence_ids": ["KB_D02_001", "KB_D02_002", "KB_D02_006", "OBS_D07_001", "FOLLOWUP_LESIONS_007"],
+        "conflicting_evidence_ids": ["FOLLOWUP_RESPONSE_007"],
+        "confirmation_status": "suspected concurrent condition; bacterial culture and laboratory identification are required"
+      },
+      {
+        "rank": 3,
+        "condition_id": "D03",
+        "evidence_strength": "weak",
+        "uncertainty": "high",
+        "supporting_evidence_ids": ["KB_D03_001"],
+        "conflicting_evidence_ids": ["OBS_D07_001"],
+        "confirmation_status": "the observed lesion pattern is not characteristic enough to support columnaris"
+      }
+    ],
+    "expected_observation_evidence": [
+      {
+        "evidence_id": "OBS_D07_001",
+        "label": "OBSERVED",
+        "text": "The image shows haemorrhagic external lesions, exophthalmia, scale loss and tail erosion."
+      },
+      {
+        "evidence_id": "USER_D07_001",
+        "label": "USER-REPORTED",
+        "text": "Most fish suddenly began gasping and crowding near aeration before dawn, while only a smaller group had visible lesions."
+      },
+      {
+        "evidence_id": "INITIAL_WATER_007",
+        "label": "MEASURED",
+        "text": "Dissolved oxygen was 2.3 mg/L during widespread gasping; unionised ammonia was 0.04 mg/L and nitrite was 0.03 mg/L."
+      },
+      {
+        "evidence_id": "FOLLOWUP_AERATION_007",
+        "label": "USER-REPORTED",
+        "text": "Emergency aeration raised dissolved oxygen to 5.3 mg/L."
+      },
+      {
+        "evidence_id": "FOLLOWUP_RESPONSE_007",
+        "label": "USER-REPORTED",
+        "text": "Widespread gasping greatly reduced within 25 minutes and no additional deaths occurred during the first hour after oxygen improved."
+      },
+      {
+        "evidence_id": "FOLLOWUP_LESIONS_007",
+        "label": "USER-REPORTED",
+        "text": "Lesions began gradually before the oxygen event, remain after aeration and affect 15 of 250 fish following recent netting and skin abrasions."
+      }
+    ],
+    "expected_safe_actions": [
+      "Restore or increase aeration immediately and verify dissolved oxygen recovery before addressing the longer-running lesion problem.",
+      "Continue frequent dissolved-oxygen checks, especially near dawn, and inspect the weak aerator while backup aeration remains available.",
+      "After stabilising oxygen, minimise handling, record lesion progression and mortality, and continue photographing affected fish.",
+      "Submit suitable affected fish to a diagnostic laboratory for examination and bacterial culture before disease-specific treatment."
+    ],
+    "expected_escalation": [
+      "Treat widespread gasping with dissolved oxygen of 2.3 mg/L as an immediate emergency and seek urgent assistance if oxygen does not recover or deaths continue.",
+      "Seek prompt fish-health support if lesions spread or mortality resumes after water conditions stabilise."
+    ],
+    "expected_confirmation": [
+      "Confirm the low-oxygen event through repeated dissolved-oxygen measurements, aerator inspection and improvement after aeration restoration.",
+      "Investigate the persistent lesions separately through fish-health examination and bacterial culture from suitable internal or affected tissues, followed by laboratory identification."
+    ],
+    "must_prioritise_immediate_aeration": true,
+    "must_consider_mixed_causes": true,
+    "must_keep_infectious_differential": true,
+    "must_not_treat_image_as_confirmation": true
+  }
+}

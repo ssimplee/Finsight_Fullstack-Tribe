@@ -6,4 +6,6 @@
 
 `aeromonas/IMG_D02_001.jpg` is the unmodified, publisher-provided web image used by CASE_002. It contains external views only. Attribution, licence and diagnostic limitations are recorded in `image_sources.json`.
 
+`columnaris/IMG_D03_001.jpg` is the combined two-panel Supplemental Figure 1 used by CASE_003. It shows gross external findings in Nile tilapia following *Flavobacterium columnare* exposure. It was exported without the surrounding slide whitespace or caption; the panel labels, arrows and clinical content were preserved. The source is licensed CC BY-NC 4.0, so reuse must remain non-commercial and retain attribution. Complete provenance, checksum and diagnostic limitations are recorded in `image_sources.json`.
+
 For every selected image, record an image ID, source ID, license, species, visible findings and diagnosis status. Describe only visible findings unless the source explicitly confirms the diagnosis.
