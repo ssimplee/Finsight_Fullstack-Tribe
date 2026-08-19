@@ -12,7 +12,7 @@ Run on campus (needs QWEN_API_KEY for both vision + reasoner):
     $env:FINSIGHT_USE_RAG="1"
     $env:FINSIGHT_USE_QWEN_REASONER="1"
     $env:QWEN_API_KEY="sk-szu-..."
-    .\.venv\Scripts\python.exe backend\eval_full_pipeline.py
+    python backend/eval_full_pipeline.py
 """
 from __future__ import annotations
 
