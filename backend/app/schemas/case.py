@@ -83,6 +83,9 @@ class CaseRecord(CaseCreate):
     differential: list[DifferentialItem] = Field(default_factory=list)
     recommended_actions: list[str] = Field(default_factory=list)
     escalation: list[str] = Field(default_factory=list)
+    # Member 4 agent decision trace (worksplit §13.6): workflow audit trail
+    # surfaced for the report UI. Populated by rag_service.build_report.
+    agent_trace: list[str] = Field(default_factory=list)
 
 
 class CaseReport(BaseModel):

@@ -96,7 +96,19 @@ class Agent:
         trace.append(f"Uncertainty assessed: {uncertainty_level}")
 
         # 8. Safety + actions
-        summary = self._build_summary(case, diff, uncertainty_level)
+        # Prefer Qwen-written grounded summary (worksplit §5) when enabled; else
+        # the deterministic template. contradiction notes appended either way.
+        used_qwen = False
+        summary = None
+        try:
+            from .qwen_reasoner import reason as _qwen_reason
+            summary = _qwen_reason(case, case.retrieved_evidence, diff, scores)
+            used_qwen = bool(summary)
+        except Exception:
+            summary = None
+        if not summary:
+            summary = self._build_summary(case, diff, uncertainty_level)
+        trace.append("Summary: " + ("Qwen" if used_qwen else "deterministic"))
         contradictions = contradiction.detect(case)
         if contradictions:
             summary += " " + " ".join(contradictions)
@@ -108,6 +120,7 @@ class Agent:
 
         # 9. Report
         status = "needs_confirmation" if diff else "insufficient_evidence"
+        case.agent_trace = trace  # surface the audit trail (worksplit §13.6)
         report = CaseReport(case=case, status=status, summary=summary)
 
         return report

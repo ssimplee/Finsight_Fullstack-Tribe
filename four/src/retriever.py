@@ -80,8 +80,21 @@ def build_query(case: CaseRecord) -> str:
 
 
 class Retriever:
-    def __init__(self, db_path: str = "fin_sight_db"):
+    def __init__(self, db_path: str = "fin_sight_db", auto_ingest: bool = True):
+        self._db_path = db_path
         self._collection = build_collection(db_path)
+        # The vector DB is gitignored (it's runtime state, not source). When a
+        # teammate clones the repo, four/fin_sight_db/ does not exist yet and
+        # get_or_create_collection silently makes an EMPTY collection, so every
+        # retrieve() returns 0 evidence. Auto-ingest once on first use so the
+        # backend "just works" for Member 1/3 without a manual setup step.
+        if auto_ingest and self._collection.count() == 0:
+            from .ingest import DEFAULT_DATA, ingest
+            try:
+                n = ingest(DEFAULT_DATA, db_path=self._db_path)
+                print(f"[rag] auto-ingested {n} chunks (db was empty)")
+            except Exception as e:  # noqa: BLE001 - never block retrieval on ingest
+                print(f"[rag] auto-ingest failed ({e}); retrieve() may return nothing")
 
     def retrieve(
         self,

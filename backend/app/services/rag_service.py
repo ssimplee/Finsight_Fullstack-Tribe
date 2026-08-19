@@ -56,12 +56,19 @@ class RagService:
         from src import uncertainty as _uncertainty
         from src.differential import CONDITION_NAMES
 
+        trace: list[str] = []  # agent decision trace (worksplit §13.6)
+        trace.append(f"Case {case.case_id} received "
+                     f"(images={len(case.images)}, visual={len(case.observations.visual)}, "
+                     f"behavioral={len(case.observations.behavioral)})")
+
         # 1. Retrieve evidence from the knowledge base.
         evidence = self._retriever.retrieve(case)
         case.retrieved_evidence = evidence
+        trace.append(f"Evidence gathered: {len(evidence)} retrieved chunks")
 
         # 2. Rank candidate conditions.
         diff, scores = _differential.rank(case, evidence)
+        trace.append(f"Conditions compared: {len(diff)}")
 
         # 3. Assess uncertainty.
         missing = _missing.detect_missing(case)
@@ -69,10 +76,15 @@ class RagService:
         for d in diff:
             d.uncertainty = unc
         case.differential = diff
+        trace.append(f"Missing information detected: {len(missing)} items; uncertainty={unc}")
 
         # 4. Safe actions + escalation.
         case.recommended_actions = _safety.build_recommended_actions(case, diff)
         case.escalation = _safety.build_escalation(diff)
+        trace.append(f"Safety actions built: {len(case.recommended_actions)}; "
+                     f"escalation: {len(case.escalation)}")
+
+        case.agent_trace = trace
 
         if not diff:
             return CaseReport(
@@ -87,13 +99,27 @@ class RagService:
         others = ", ".join(
             CONDITION_NAMES.get(d.condition_id, d.condition_id) for d in diff[1:]
         )
-        summary = (
-            f"Top-ranked cause: {top_name} "
-            f"(strength={top.evidence_strength}, uncertainty={unc})."
-        )
-        if others:
-            summary += f" Alternatives considered: {others}."
-        summary += " Findings are not confirmed; laboratory testing is required before treatment."
+        # 5. Summary. Prefer a Qwen-written grounded explanation (worksplit §5:
+        # Qwen reasons over retrieved evidence + writes the final explanation)
+        # when FINSIGHT_USE_QWEN_REASONER=1 and QWEN_API_KEY is set; otherwise
+        # fall back to the deterministic template so the report never blocks.
+        used_qwen = False
+        summary = None
+        try:
+            from src.qwen_reasoner import reason as _qwen_reason
+            summary = _qwen_reason(case, evidence, diff, scores)
+            used_qwen = bool(summary)
+        except Exception as e:  # noqa: BLE001
+            print(f"[rag] qwen reasoner unavailable ({e})")
+        if not summary:
+            summary = (
+                f"Top-ranked cause: {top_name} "
+                f"(strength={top.evidence_strength}, uncertainty={unc})."
+            )
+            if others:
+                summary += f" Alternatives considered: {others}."
+            summary += " Findings are not confirmed; laboratory testing is required before treatment."
+        trace.append("Summary: " + ("Qwen" if used_qwen else "deterministic"))
         return CaseReport(case=case, status="report_ready", summary=summary)
 
 
