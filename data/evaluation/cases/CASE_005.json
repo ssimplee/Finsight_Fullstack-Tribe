@@ -1,0 +1,32 @@
+{
+  "case_id": "CASE_005",
+  "fish": {"species": "Nile tilapia", "life_stage": null},
+  "images": [],
+  "observations": {
+    "visual": ["no obvious external lesions"],
+    "behavioral": ["widespread surface gasping", "crowding near water inlet"]
+  },
+  "water_quality": {
+    "temperature_c": 30.0,
+    "ph": 7.6,
+    "dissolved_oxygen_mg_l": 2.1,
+    "ammonia_mg_l": null,
+    "nitrite_mg_l": null,
+    "nitrate_mg_l": null
+  },
+  "history": {"onset": "sudden before dawn", "aeration_failure": true, "affected_distribution": "most fish"},
+  "agent_questions": [],
+  "retrieved_evidence": [],
+  "differential": [],
+  "recommended_actions": [],
+  "escalation": [],
+  "evaluation": {
+    "synthetic": true,
+    "case_type": "low_dissolved_oxygen_emergency",
+    "expected_follow_up_topics": ["aeration status", "ammonia and nitrite", "response after aeration restoration"],
+    "expected_top_condition_id": "D05",
+    "acceptable_alternatives": [],
+    "must_prioritise_immediate_aeration": true,
+    "must_not_claim_infectious_diagnosis": true
+  }
+}
