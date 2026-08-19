@@ -65,7 +65,7 @@
     "confirmation_methods": ["RT-PCR or RT-qPCR performed by a qualified laboratory", "histopathology", "virus isolation or other validated laboratory methods"],
     "safe_actions": ["record mortality and fish movements", "avoid moving potentially affected stock", "contact aquatic animal-health authorities or a qualified laboratory", "apply farm biosecurity procedures"],
     "escalation_triggers": ["unusual or mass mortality", "outbreak following fish movement", "multiple fish with ocular and skin abnormalities"],
-    "source_ids": ["SRC_WOAH_001", "SRC_FAO_002", "SRC_FAO_003", "SRC_WF_001"]
+    "source_ids": ["SRC_WOAH_001", "SRC_FAO_002", "SRC_FAO_003", "SRC_WF_001", "SRC_IMG_TILV_001"]
   },
   {
     "condition_id": "D05",
