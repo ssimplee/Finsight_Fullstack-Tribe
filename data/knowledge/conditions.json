@@ -48,7 +48,7 @@
     "confirmation_methods": ["examination of fresh skin, fin, and gill samples", "bacterial culture and laboratory identification", "assessment of water quality and coexisting disease"],
     "safe_actions": ["photograph skin, fin, and gill findings", "check water quality", "minimise handling", "contact a fish-health laboratory for confirmation"],
     "escalation_triggers": ["rapid spread of skin or gill lesions", "respiratory distress in multiple fish", "increasing mortality"],
-    "source_ids": ["SRC_FAO_001", "SRC_UF_002", "SRC_FAO_002", "SRC_WF_001"]
+    "source_ids": ["SRC_FAO_001", "SRC_UF_002", "SRC_FAO_002", "SRC_WF_001", "SRC_IMG_COLUMNARIS_001"]
   },
   {
     "condition_id": "D04",
