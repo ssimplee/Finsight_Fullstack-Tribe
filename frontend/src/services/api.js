@@ -76,7 +76,10 @@ function mapCaseFormToBackend(caseData) {
     history: {
       symptom_duration: caseData.symptomDuration || null,
       mortality_trend: caseData.mortalityTrend || null,
-      recent_events: caseData.recentHistory,
+      recent_events:
+        caseData.recentHistory.length > 0
+          ? caseData.recentHistory.join("; ")
+          : null,
       notes: caseData.historyNotes || null,
     },
   };
