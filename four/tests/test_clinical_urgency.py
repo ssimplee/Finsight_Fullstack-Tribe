@@ -19,10 +19,18 @@ def _case(visual=None, behavioral=None, water=None, history=None, images=None):
 
 
 def test_low_do_triggers_d05_urgency_bonus():
-    case = _case(water=WaterQuality(dissolved_oxygen_mg_l=2.0))
+    # DO=3.5 is low (<4) but not critical (>=3) -> single-signal +1.5 tier.
+    case = _case(water=WaterQuality(dissolved_oxygen_mg_l=3.5))
     b = differential._urgency_bonus(case)
     assert b["D05"] == differential.URGENCY_BONUS["D05"]
     assert b["D04"] == 0.0
+
+
+def test_critical_do_triggers_d05_severe_urgency():
+    # DO<3 is a life-threatening acute emergency -> double (+3.0) tier.
+    case = _case(water=WaterQuality(dissolved_oxygen_mg_l=2.0))
+    b = differential._urgency_bonus(case)
+    assert b["D05"] == differential.URGENCY_BONUS["D05"] * 2.0
 
 
 def test_high_ammonia_triggers_d05_urgency_bonus():
