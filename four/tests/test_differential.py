@@ -40,7 +40,10 @@ def test_rank_returns_sorted_items():
 
 
 def test_supporting_and_conflicting_classification():
-    case = CaseRecord(case_id="T", fish=FishInfo())
+    case = CaseRecord(
+        case_id="T", fish=FishInfo(),
+        observations=Observations(visual=["eye haemorrhage"], behavioral=[]),
+    )
     ev = [
         EvidenceItem(evidence_id="E1", condition_id="D01", label="supporting evidence", text="x"),
         EvidenceItem(evidence_id="E2", condition_id="D01", label="conflicting evidence", text="y"),

@@ -76,6 +76,52 @@ def _symptom_hits(case: CaseRecord) -> dict[str, float]:
     return hits
 
 
+# Clinical urgency / severity weighting (worksplit: prioritise high-impact
+# causes when several are plausible). Unlike symptom-keyword scoring, this
+# bonus fires only on GROUNDED urgency signals in the case, so it does not
+# distort ordinary single-cause cases.
+#
+# D05 water-quality crisis: acute environmental emergency -> high boost when
+#   low DO / high ammonia-nitrite / aeration-filtration failure / sudden mass
+#   distress is actually present.
+# D04 TiLV: reportable, high-mortality -> medium boost when reportable-signal
+#   clues (recent fish movement, mass mortality, ocular+skin abnormalities)
+#   are actually present.
+# D01/D02/D03: treatable bacterial diseases -> no urgency boost (baseline).
+URGENCY_BONUS = {"D05": 1.5, "D04": 1.0}
+_EMERGENCY_WATER = {"aeration_failure", "filtration_failure", "oxygenation_failure"}
+_MOVEMENT_KEYS = {"recent_introduction", "fish_movement", "stock_movement", "new_fish"}
+
+
+def _urgency_bonus(case: CaseRecord) -> dict[str, float]:
+    """Per-condition clinical-urgency bonus, grounded in actual case signals."""
+    bonus = {cid: 0.0 for cid in CONDITION_NAMES}
+    wq = case.water_quality
+    history = case.history or {}
+    history_text = " ".join(str(v) for v in history.values()).lower()
+
+    # D05 environmental emergency: low DO / high ammonia-nitrite, or a
+    # documented aeration/filtration failure, or sudden mass distress.
+    do_low = wq.dissolved_oxygen_mg_l is not None and wq.dissolved_oxygen_mg_l < 4
+    nh3_high = wq.ammonia_mg_l is not None and wq.ammonia_mg_l > 0.5
+    no2_high = wq.nitrite_mg_l is not None and wq.nitrite_mg_l > 0.5
+    aeration_fail = any(k in history for k in _EMERGENCY_WATER) or "aeration" in history_text
+    sudden_mass = "sudden" in history_text and "most" in history_text
+    if do_low or nh3_high or no2_high or aeration_fail or sudden_mass:
+        bonus["D05"] = URGENCY_BONUS["D05"]
+
+    # D04 TiLV reportable disease: recent fish movement/transfer, or mass /
+    # unusual mortality. (Ocular+skin signs alone are NOT used -- Aeromonas
+    # and Streptococcosis share exophthalmia + haemorrhage, so that combo is
+    # not TiLV-specific and would falsely boost D04 on bacterial cases.)
+    moved = any(k in history for k in _MOVEMENT_KEYS) or "movement" in history_text or "transfer" in history_text
+    mass_mortality = "mass" in history_text or "unusual mortality" in history_text
+    if moved or mass_mortality:
+        bonus["D04"] = URGENCY_BONUS["D04"]
+
+    return bonus
+
+
 def score(case: CaseRecord, evidence: list[EvidenceItem]) -> dict[str, float]:
     """Compute a support score per candidate condition."""
     scores: dict[str, float] = {cid: 0.0 for cid in CONDITION_NAMES}
@@ -91,7 +137,33 @@ def score(case: CaseRecord, evidence: list[EvidenceItem]) -> dict[str, float]:
             continue
         scores[cid] += EVIDENCE_WEIGHT.get(item.label, 0.0)
 
+    # Clinical-urgency bonus (grounded in case signals, not arbitrary).
+    for cid, b in _urgency_bonus(case).items():
+        scores[cid] += b
+
     return scores
+
+
+def _is_insufficient(case: CaseRecord) -> bool:
+    """Decline to rank when the case carries almost no usable signal.
+
+    Triggered when there are no real image findings AND no VISUAL observations
+    (behavioural signs like lethargy alone are too non-specific to rank on) AND
+    the critical water-quality triad (DO, temperature, ammonia) is mostly
+    missing. Even if retrieval returns weakly-matching chunks, ranking on
+    near-zero case signal would be guessing -> return an empty differential so
+    the agent reports 'insufficient_evidence' and asks for more information
+    instead (worksplit §13.7).
+    """
+    has_image_findings = any(
+        f and f != "pending_qwen_observation" for img in case.images for f in img.visible_findings
+    )
+    has_visual = bool(case.observations.visual)
+    wq = case.water_quality
+    critical_missing = sum(
+        1 for v in (wq.dissolved_oxygen_mg_l, wq.temperature_c, wq.ammonia_mg_l) if v is None
+    )
+    return (not has_image_findings) and (not has_visual) and critical_missing >= 2
 
 
 def _classify(evidence: list[EvidenceItem], condition_id: str) -> tuple[list[str], list[str]]:
@@ -119,6 +191,11 @@ def rank(
     case: CaseRecord, evidence: list[EvidenceItem], top_n: int = 3
 ) -> tuple[list[DifferentialItem], dict[str, float]]:
     """Return ranked differential items and the raw scores used for uncertainty."""
+    # Insufficient case signal -> refuse to rank. Better to say "insufficient
+    # evidence" and ask for more info than to guess from weak retrieval hits.
+    if _is_insufficient(case):
+        return [], score(case, evidence)
+
     scores = score(case, evidence)
     ranked_ids = sorted(scores, key=lambda cid: scores[cid], reverse=True)[:top_n]
 

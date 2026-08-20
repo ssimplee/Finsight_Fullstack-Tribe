@@ -75,7 +75,12 @@ def run_one(path: str, retriever: Retriever) -> dict:
 
     expected = _expected_top(evaluation)
     actual_top = diff[0].condition_id if diff else None
-    hit = actual_top == expected if expected else None
+    # expected_top=None means the case should DECLINE to rank (insufficient
+    # evidence). A None actual_top then counts as a hit.
+    if expected is None:
+        hit = actual_top is None
+    else:
+        hit = actual_top == expected
 
     return {
         "case_id": case.case_id,
