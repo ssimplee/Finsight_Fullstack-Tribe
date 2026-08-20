@@ -1,6 +1,9 @@
+import logging
+import os
 from uuid import uuid4
 
 from fastapi import UploadFile
+from starlette.concurrency import run_in_threadpool
 
 from app.schemas.case import (
     AgentQuestion,
@@ -13,6 +16,20 @@ from app.schemas.case import (
     EvidenceItem,
     FollowUpAnswers,
 )
+from app.services.qwen_client import QwenAPIError, QwenConfigError, QwenParseError
+from app.services.vision_analysis import analyze_image
+from app.services.vision_schemas import ImageQuality
+
+logger = logging.getLogger(__name__)
+
+# Member 4 real RAG is opt-in (env FINSIGHT_USE_RAG=1). Default uses the mock
+# workflow so Member 1's tests and envs without chromadb keep working.
+_USE_REAL_RAG = os.environ.get("FINSIGHT_USE_RAG", "").lower() in ("1", "true", "yes")
+
+try:
+    from app.services.rag_service import rag_service
+except Exception:  # RAG deps (chromadb/sentence-transformers) not installed
+    rag_service = None
 
 
 class CaseService:
@@ -49,13 +66,32 @@ class CaseService:
         if case is None:
             return None
 
+        content = await file.read()
+        visible_findings = await self._observe_image(content)
+
         image = CaseImage(
             image_id=f"IMG_{uuid4().hex[:8].upper()}",
             filename=file.filename or "upload",
-            visible_findings=["pending_qwen_observation"],
+            visible_findings=visible_findings,
         )
         case.images.append(image)
         return case
+
+    async def _observe_image(self, content: bytes) -> list[str]:
+        """Run Member 3 vision analysis; fall back to a pending marker on any failure."""
+        if not content:
+            return ["pending_qwen_observation"]
+        try:
+            result = await run_in_threadpool(analyze_image, content)
+        except (QwenConfigError, QwenAPIError, QwenParseError):
+            logger.warning("Qwen vision analysis unavailable; keeping pending marker.")
+            return ["pending_qwen_observation"]
+        except Exception:  # noqa: BLE001 - never block image upload on vision failure
+            logger.warning("Qwen vision analysis failed unexpectedly; keeping pending marker.")
+            return ["pending_qwen_observation"]
+        if result.quality != ImageQuality.USABLE or not result.findings:
+            return ["pending_qwen_observation"]
+        return [finding.finding for finding in result.findings]
 
     def generate_follow_up_questions(self, case_id: str) -> list[AgentQuestion] | None:
         case = self.get_case(case_id)
@@ -63,6 +99,14 @@ class CaseService:
             return None
 
         if not case.agent_questions:
+            # Member 4 real RAG follow-ups (falls back to mock if unavailable)
+            if _USE_REAL_RAG and rag_service is not None:
+                try:
+                    case.agent_questions.extend(rag_service.generate_follow_ups(case))
+                    return case.agent_questions
+                except Exception:
+                    pass  # fall through to mock
+
             questions = []
             if case.water_quality.dissolved_oxygen_mg_l is None:
                 questions.append(
@@ -117,9 +161,17 @@ class CaseService:
             return CaseReport(
                 case=case,
                 status="needs_follow_up",
-                summary="At least two follow-up answers are required before mock differential ranking.",
+                summary="At least two follow-up answers are required before differential ranking.",
             )
 
+        # Member 4 real RAG (falls back to mock if RAG deps unavailable)
+        if _USE_REAL_RAG and rag_service is not None:
+            try:
+                return rag_service.build_report(case)
+            except Exception:
+                pass  # fall through to mock
+
+        # --- mock fallback (original Member 1 logic) ---
         if not case.retrieved_evidence:
             case.retrieved_evidence.extend(
                 [

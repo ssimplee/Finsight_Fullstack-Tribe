@@ -1,6 +1,8 @@
 import "./globals.css";
+import type { Metadata } from "next";
+import AppChrome from "./AppChrome";
 
-export const metadata = {
+export const metadata: Metadata = {
   title: "FinSight",
   description: "Fish-health diagnostic triage assistant",
 };
@@ -12,7 +14,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body>
+        <AppChrome>{children}</AppChrome>
+      </body>
     </html>
   );
 }

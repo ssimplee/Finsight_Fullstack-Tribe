@@ -9,6 +9,7 @@ venv/
 # Node
 node_modules/
 .next/
+.npm-cache/
 dist/
 build/
 npm-debug.log*
@@ -22,6 +23,10 @@ npm-debug.log*
 *.db
 *.sqlite
 uploads/
+
+# Member 4 RAG runtime (Chroma vector DB + downloaded embedding model)
+four/fin_sight_db/
+four/models/
 
 # OS/editor
 .DS_Store

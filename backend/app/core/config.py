@@ -8,6 +8,14 @@ class Settings:
     qwen_api_key: str | None = getenv("QWEN_API_KEY")
     qwen_model: str | None = getenv("QWEN_MODEL")
     rag_provider: str = getenv("RAG_PROVIDER", "local")
+    cors_origins: list[str] = [
+        origin.strip()
+        for origin in getenv(
+            "CORS_ORIGINS",
+            "http://localhost:3000,http://127.0.0.1:3000",
+        ).split(",")
+        if origin.strip()
+    ]
 
 
 settings = Settings()
