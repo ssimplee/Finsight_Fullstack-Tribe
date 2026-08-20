@@ -131,6 +131,8 @@ class CaseService:
                     reason="Recent stressors help separate infectious causes from water-quality stress.",
                 )
             )
+            for index, question in enumerate(questions, start=1):
+                question.question_id = f"Q_{index:03}"
             case.agent_questions.extend(questions[:3])
 
         return case.agent_questions

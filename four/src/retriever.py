@@ -7,10 +7,16 @@ from __future__ import annotations
 
 from typing import Optional
 
-import chromadb
-
-from .ingest import COLLECTION_NAME, build_collection
 from .models import CaseRecord, EvidenceItem
+
+COLLECTION_NAME = "fish_disease_kb"
+
+
+def build_collection(db_path: str):
+    """Build the Chroma collection lazily so importing retriever stays lightweight."""
+    from .ingest import build_collection as _build_collection
+
+    return _build_collection(db_path)
 
 # Evidence-type vocabulary used to label retrieved chunks.
 # Aligned with Member 2's real knowledge_chunks.jsonl evidence_type values.

@@ -1,4 +1,6 @@
-import chromadb
+import pytest
+
+chromadb = pytest.importorskip("chromadb")
 from chromadb.utils import embedding_functions
 import json
 import os
