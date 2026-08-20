@@ -1,18 +1,28 @@
+"""Pydantic models aligned 1:1 with backend/app/schemas/case.py.
+
+These are the contract types for Member 4's outputs. When the module moves
+into backend/app/services/rag/, replace these definitions with:
+    from app.schemas.case import (FishInfo, WaterQuality, ...)
+"""
+from __future__ import annotations
+
+from typing import Any, Optional
+
 from pydantic import BaseModel, Field
 
 
 class FishInfo(BaseModel):
     species: str = "Nile tilapia"
-    life_stage: str | None = None
+    life_stage: Optional[str] = None
 
 
 class WaterQuality(BaseModel):
-    temperature_c: float | None = None
-    ph: float | None = None
-    dissolved_oxygen_mg_l: float | None = None
-    ammonia_mg_l: float | None = None
-    nitrite_mg_l: float | None = None
-    nitrate_mg_l: float | None = None
+    temperature_c: Optional[float] = None
+    ph: Optional[float] = None
+    dissolved_oxygen_mg_l: Optional[float] = None
+    ammonia_mg_l: Optional[float] = None
+    nitrite_mg_l: Optional[float] = None
+    nitrate_mg_l: Optional[float] = None
 
 
 class Observations(BaseModel):
@@ -29,8 +39,8 @@ class CaseImage(BaseModel):
 
 class EvidenceItem(BaseModel):
     evidence_id: str
-    condition_id: str | None = None
-    source_id: str | None = None
+    condition_id: Optional[str] = None
+    source_id: Optional[str] = None
     label: str
     text: str
 
@@ -39,16 +49,7 @@ class AgentQuestion(BaseModel):
     question_id: str
     question: str
     reason: str
-    answer: str | None = None
-
-
-class FollowUpAnswer(BaseModel):
-    question_id: str
-    answer: str
-
-
-class FollowUpAnswers(BaseModel):
-    answers: list[FollowUpAnswer]
+    answer: Optional[str] = None
 
 
 class DifferentialItem(BaseModel):
@@ -66,14 +67,7 @@ class CaseCreate(BaseModel):
     images: list[CaseImage] = Field(default_factory=list)
     observations: Observations = Field(default_factory=Observations)
     water_quality: WaterQuality = Field(default_factory=WaterQuality)
-    history: dict[str, str | int | float | bool | None] = Field(default_factory=dict)
-
-
-class CaseUpdate(BaseModel):
-    fish: FishInfo | None = None
-    observations: Observations | None = None
-    water_quality: WaterQuality | None = None
-    history: dict[str, str | int | float | bool | None] | None = None
+    history: dict[str, Any] = Field(default_factory=dict)
 
 
 class CaseRecord(CaseCreate):
@@ -83,8 +77,10 @@ class CaseRecord(CaseCreate):
     differential: list[DifferentialItem] = Field(default_factory=list)
     recommended_actions: list[str] = Field(default_factory=list)
     escalation: list[str] = Field(default_factory=list)
-    # Member 4 agent decision trace (worksplit §13.6): workflow audit trail
-    # surfaced for the report UI. Populated by rag_service.build_report.
+    # Agent decision trace (worksplit §13.6): a simple workflow audit trail --
+    # "Case received" -> "Missing info detected" -> "Follow-ups asked" ->
+    # "N chunks retrieved" -> "Conditions compared" -> "Safety check passed".
+    # Populated by the agent state machine; surfaced for Member 5's report UI.
     agent_trace: list[str] = Field(default_factory=list)
 
 
@@ -92,7 +88,3 @@ class CaseReport(BaseModel):
     case: CaseRecord
     status: str
     summary: str
-
-
-class ApiError(BaseModel):
-    detail: str
