@@ -1,0 +1,189 @@
+{
+  "case_id": "CASE_008",
+  "fish": {"species": "Nile tilapia", "life_stage": "fingerling"},
+  "images": [
+    {
+      "image_id": "IMG_D04_001",
+      "filename": "data/images/tilv/IMG_D04_001.png",
+      "visible_findings": ["abdominal swelling", "exophthalmia"],
+      "source": "SRC_IMG_TILV_001"
+    }
+  ],
+  "observations": {
+    "visual": ["eye protrusion", "abdominal swelling", "slight body darkening"],
+    "behavioral": ["lethargy", "reduced appetite", "slow swimming"]
+  },
+  "water_quality": {
+    "temperature_c": 29.5,
+    "ph": 7.4,
+    "dissolved_oxygen_mg_l": 5.6,
+    "ammonia_mg_l": 0.03,
+    "nitrite_mg_l": 0.02,
+    "nitrate_mg_l": 13.0
+  },
+  "history": {
+    "symptom_duration_days": 4,
+    "mortality_trend": "slow increase",
+    "recent_fish_introduction": true,
+    "recent_handling": false
+  },
+  "agent_questions": [],
+  "retrieved_evidence": [],
+  "differential": [],
+  "recommended_actions": [],
+  "escalation": [],
+  "evaluation": {
+    "synthetic": true,
+    "case_type": "overlapping_streptococcosis_aeromonas_tilv_signs",
+    "expected_follow_up_topics": ["neurological swimming signs", "skin haemorrhage or erosion", "fish movement and mortality pattern"],
+    "follow_up_script": [
+      {
+        "question": "Are affected fish circling, spinning, losing balance or showing other abnormal swimming?",
+        "answer": "They are moving slowly, but no circling, spinning or loss of balance has been observed."
+      },
+      {
+        "question": "Are there haemorrhagic skin lesions, ulcers, scale loss, skin erosion or damaged fins and gills?",
+        "answer": "No obvious haemorrhage, ulcers, scale loss, fin damage or gill damage has been seen. A few fish only appear slightly darker."
+      },
+      {
+        "question": "Where did the recently introduced fish come from, how long were they separated and how many fish have died?",
+        "answer": "Forty fingerlings from another farm were added 18 days ago after only 2 days of separation. Nine of 300 fish have died over the last 4 days, with deaths increasing slowly."
+      }
+    ],
+    "follow_up_water_quality": {
+      "dissolved_oxygen_mg_l": 5.6,
+      "ammonia_mg_l": 0.03,
+      "ammonia_measurement_basis": "unionised NH3",
+      "nitrite_mg_l": 0.02,
+      "nitrate_mg_l": 13.0,
+      "ph": 7.4,
+      "temperature_c": 29.5
+    },
+    "follow_up_signs": {
+      "circling_or_spinning": false,
+      "loss_of_balance": false,
+      "haemorrhagic_lesions": false,
+      "ulcers": false,
+      "scale_loss": false,
+      "fin_or_gill_damage": false,
+      "slight_body_darkening": true
+    },
+    "follow_up_introduction": {
+      "introduced_fish": 40,
+      "source": "another farm",
+      "days_ago": 18,
+      "separation_days": 2
+    },
+    "follow_up_mortality": {
+      "dead_fish": 9,
+      "population": 300,
+      "period_days": 4,
+      "trend": "slowly increasing"
+    },
+    "expected_retrieved_evidence_ids": [
+      "KB_D01_001",
+      "KB_D01_002",
+      "KB_D01_003",
+      "KB_D01_004",
+      "KB_D02_001",
+      "KB_D02_002",
+      "KB_D02_003",
+      "KB_D02_004",
+      "KB_D04_001",
+      "KB_D04_002",
+      "KB_D04_003",
+      "KB_D04_004",
+      "KB_D04_006",
+      "KB_D05_001",
+      "KB_D05_002"
+    ],
+    "expected_top_condition_id": "D04",
+    "acceptable_alternatives": ["D01", "D02"],
+    "expected_ranked_differential": [
+      {
+        "rank": 1,
+        "condition_id": "D04",
+        "evidence_strength": "moderate",
+        "uncertainty": "moderate",
+        "supporting_evidence_ids": ["KB_D04_001", "KB_D04_002", "KB_D04_006", "OBS_D08_001", "USER_D08_001", "FOLLOWUP_MOVEMENT_008"],
+        "conflicting_evidence_ids": [],
+        "confirmation_status": "unconfirmed; the signs and fish movement history are compatible but not specific"
+      },
+      {
+        "rank": 2,
+        "condition_id": "D01",
+        "evidence_strength": "moderate",
+        "uncertainty": "high",
+        "supporting_evidence_ids": ["KB_D01_001", "OBS_D08_001", "USER_D08_001"],
+        "conflicting_evidence_ids": ["KB_D01_002", "FOLLOWUP_SIGNS_008"],
+        "confirmation_status": "unconfirmed; characteristic neurological swimming signs were not reported"
+      },
+      {
+        "rank": 3,
+        "condition_id": "D02",
+        "evidence_strength": "weak",
+        "uncertainty": "high",
+        "supporting_evidence_ids": ["KB_D02_001", "OBS_D08_001", "USER_D08_001"],
+        "conflicting_evidence_ids": ["KB_D02_004", "FOLLOWUP_SIGNS_008"],
+        "confirmation_status": "unconfirmed; no haemorrhagic lesions, ulcers or recent injury were reported"
+      },
+      {
+        "rank": 4,
+        "condition_id": "D05",
+        "evidence_strength": "weak",
+        "uncertainty": "moderate",
+        "supporting_evidence_ids": [],
+        "conflicting_evidence_ids": ["KB_D05_001", "KB_D05_002", "FOLLOWUP_WATER_008", "FOLLOWUP_PATTERN_008"],
+        "confirmation_status": "current readings and the gradual pattern do not support an acute water-quality event"
+      }
+    ],
+    "expected_observation_evidence": [
+      {
+        "evidence_id": "OBS_D08_001",
+        "label": "OBSERVED",
+        "text": "The image shows abdominal swelling and exophthalmia, which are not specific to one disease."
+      },
+      {
+        "evidence_id": "USER_D08_001",
+        "label": "USER-REPORTED",
+        "text": "Affected fish are lethargic, eating less and swimming slowly, and some appear slightly darker."
+      },
+      {
+        "evidence_id": "FOLLOWUP_WATER_008",
+        "label": "MEASURED",
+        "text": "Dissolved oxygen was 5.6 mg/L, unionised ammonia was 0.03 mg/L and nitrite was 0.02 mg/L."
+      },
+      {
+        "evidence_id": "FOLLOWUP_SIGNS_008",
+        "label": "USER-REPORTED",
+        "text": "No circling, loss of balance, haemorrhagic lesions, ulcers, scale loss or fin and gill damage were reported."
+      },
+      {
+        "evidence_id": "FOLLOWUP_MOVEMENT_008",
+        "label": "USER-REPORTED",
+        "text": "Forty fingerlings from another farm were introduced 18 days ago after only 2 days of separation."
+      },
+      {
+        "evidence_id": "FOLLOWUP_PATTERN_008",
+        "label": "USER-REPORTED",
+        "text": "Nine of 300 fish died over 4 days, with mortality increasing slowly rather than affecting most fish suddenly."
+      }
+    ],
+    "expected_safe_actions": [
+      "Do not identify the disease from the shared signs or image alone.",
+      "Record daily mortality and changes in eye, abdominal, skin and swimming signs while maintaining appropriate water quality.",
+      "Avoid moving potentially affected fish and strengthen separation and equipment hygiene while the cause is investigated.",
+      "Contact a fish-health laboratory for examination and coordinated bacterial and TiLV testing before disease-specific treatment."
+    ],
+    "expected_escalation": [
+      "Seek prompt professional help because mortality is increasing after fish introduction and multiple infectious causes remain possible."
+    ],
+    "expected_confirmation": [
+      "Use fish-health examination and necropsy to guide sampling, bacterial culture and identification for streptococcal or Aeromonas infection, and RT-PCR or RT-qPCR on appropriately preserved tissues for TiLV."
+    ],
+    "must_compare_condition_ids": ["D01", "D02", "D04"],
+    "must_recommend_lab_confirmation": true,
+    "must_state_overlapping_signs": true,
+    "must_not_claim_confirmation": true
+  }
+}

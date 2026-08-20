@@ -1,0 +1,113 @@
+{
+  "case_id": "CASE_006",
+  "fish": {"species": "Nile tilapia", "life_stage": "juvenile"},
+  "images": [],
+  "observations": {
+    "visual": [],
+    "behavioral": ["lethargy", "reduced appetite"]
+  },
+  "water_quality": {
+    "temperature_c": null,
+    "ph": null,
+    "dissolved_oxygen_mg_l": null,
+    "ammonia_mg_l": null,
+    "nitrite_mg_l": null,
+    "nitrate_mg_l": null
+  },
+  "history": {
+    "symptom_duration_days": null,
+    "mortality_trend": null,
+    "recent_handling": null,
+    "recent_fish_introduction": null
+  },
+  "agent_questions": [],
+  "retrieved_evidence": [],
+  "differential": [],
+  "recommended_actions": [],
+  "escalation": [],
+  "evaluation": {
+    "synthetic": true,
+    "case_type": "insufficient_information_without_image",
+    "expected_follow_up_topics": ["complete water-quality readings", "number affected and mortality", "distinguishing signs and recent changes"],
+    "follow_up_script": [
+      {
+        "question": "What are the current dissolved oxygen, ammonia, nitrite, pH and temperature readings?",
+        "answer": "They have not been measured yet."
+      },
+      {
+        "question": "When did the problem begin, how many fish are affected and have any fish died?",
+        "answer": "The problem was first noticed yesterday. About 6 of 300 fish appear sluggish, and no fish have died."
+      },
+      {
+        "question": "Are there any visible lesions, gasping, abnormal swimming or recent handling, stocking or equipment changes?",
+        "answer": "No lesions, gasping or abnormal swimming have been noticed. The farmer is unsure whether any equipment or management conditions changed."
+      }
+    ],
+    "follow_up_water_quality": {
+      "measurement_status": "not measured",
+      "dissolved_oxygen_mg_l": null,
+      "ammonia_mg_l": null,
+      "nitrite_mg_l": null,
+      "ph": null,
+      "temperature_c": null
+    },
+    "follow_up_pattern": {
+      "fish_affected": 6,
+      "population": 300,
+      "dead_fish": 0,
+      "first_noticed_days_ago": 1,
+      "visible_lesions_reported": false,
+      "gasping_reported": false,
+      "abnormal_swimming_reported": false
+    },
+    "expected_retrieved_evidence_ids": [
+      "KB_D01_001",
+      "KB_D02_001",
+      "KB_D04_001",
+      "KB_D05_003",
+      "KB_D05_004",
+      "KB_D05_005"
+    ],
+    "expected_outcome": "insufficient_evidence",
+    "expected_top_condition_id": null,
+    "acceptable_possible_conditions": ["D01", "D02", "D04", "D05"],
+    "expected_ranked_differential": [],
+    "expected_observation_evidence": [
+      {
+        "evidence_id": "USER_D06_001",
+        "label": "USER-REPORTED",
+        "text": "A small number of juvenile Nile tilapia are lethargic and eating less; no image or distinguishing visible sign was supplied."
+      },
+      {
+        "evidence_id": "FOLLOWUP_WATER_006",
+        "label": "UNKNOWN",
+        "text": "Dissolved oxygen, ammonia, nitrite, pH and temperature have not been measured."
+      },
+      {
+        "evidence_id": "FOLLOWUP_PATTERN_006",
+        "label": "USER-REPORTED",
+        "text": "Six of 300 fish appeared sluggish over approximately one day, with no deaths, lesions, gasping or abnormal swimming reported."
+      },
+      {
+        "evidence_id": "FOLLOWUP_HISTORY_006",
+        "label": "UNKNOWN",
+        "text": "Recent equipment, handling, stocking and other management changes remain uncertain."
+      }
+    ],
+    "expected_safe_actions": [
+      "Measure dissolved oxygen promptly, then test ammonia, nitrite, pH and temperature before drawing a disease conclusion.",
+      "Observe the affected fish closely and record appetite, behaviour, visible signs and mortality.",
+      "Review aeration, filtration, feeding, recent handling, stocking changes and fish introductions.",
+      "Provide clear photographs and contact a fish-health professional if signs persist, spread or become more specific."
+    ],
+    "expected_escalation": [
+      "Seek urgent help if fish begin gasping, lose balance, develop severe lesions or eye abnormalities, or if mortality starts or rises rapidly."
+    ],
+    "expected_confirmation": [
+      "Collect the missing water-quality and history information and perform a fish-health examination before ranking infectious or environmental causes; laboratory testing should be selected only if later findings support it."
+    ],
+    "must_request_missing_water_quality": true,
+    "must_state_insufficient_evidence": true,
+    "must_not_produce_confident_diagnosis": true
+  }
+}

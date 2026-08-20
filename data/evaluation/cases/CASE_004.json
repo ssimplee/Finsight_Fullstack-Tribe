@@ -1,0 +1,179 @@
+{
+  "case_id": "CASE_004",
+  "fish": {"species": "Nile tilapia", "life_stage": "fingerling"},
+  "images": [
+    {
+      "image_id": "IMG_D04_001",
+      "filename": "data/images/tilv/IMG_D04_001.png",
+      "visible_findings": ["abdominal swelling", "exophthalmia"],
+      "source": "SRC_IMG_TILV_001"
+    }
+  ],
+  "observations": {
+    "visual": ["eye opacity", "skin erosion", "abdominal distension"],
+    "behavioral": ["lethargy", "loss of appetite", "reduced schooling"]
+  },
+  "water_quality": {
+    "temperature_c": 29.0,
+    "ph": 7.3,
+    "dissolved_oxygen_mg_l": 5.8,
+    "ammonia_mg_l": 0.03,
+    "nitrite_mg_l": 0.0,
+    "nitrate_mg_l": 12.0
+  },
+  "history": {"symptom_duration_days": 5, "mortality_trend": "rapid increase", "recent_fish_introduction": true},
+  "agent_questions": [],
+  "retrieved_evidence": [],
+  "differential": [],
+  "recommended_actions": [],
+  "escalation": [],
+  "evaluation": {
+    "synthetic": true,
+    "case_type": "tilv_suspicion_with_image_and_recent_stock_movement",
+    "expected_follow_up_topics": ["source and quarantine of new fish", "mortality count", "availability of laboratory testing"],
+    "follow_up_script": [
+      {
+        "question": "Where did the newly introduced fish come from, and were they quarantined before entering this unit?",
+        "answer": "Sixty fingerlings from a new supplier were added 9 days ago without quarantine. Signs began about 4 days after introduction."
+      },
+      {
+        "question": "How many fish are affected, and how many have died since the signs began?",
+        "answer": "Thirty-two of 400 fish are visibly affected and 21 have died over 5 days, with deaths increasing each day."
+      },
+      {
+        "question": "Has a fish-health laboratory been contacted, and is TiLV RT-PCR or RT-qPCR testing available?",
+        "answer": "No testing has been performed yet, but a regional fish-health laboratory can receive samples for TiLV RT-PCR."
+      }
+    ],
+    "follow_up_water_quality": {
+      "dissolved_oxygen_mg_l": 5.8,
+      "ammonia_mg_l": 0.03,
+      "ammonia_measurement_basis": "unionised NH3",
+      "nitrite_mg_l": 0.0,
+      "nitrate_mg_l": 12.0
+    },
+    "follow_up_introduction": {
+      "introduced_fish": 60,
+      "source": "new supplier",
+      "days_ago": 9,
+      "quarantined": false,
+      "days_from_introduction_to_signs": 4
+    },
+    "follow_up_mortality": {
+      "fish_with_visible_signs": 32,
+      "dead_fish": 21,
+      "population": 400,
+      "period_days": 5,
+      "trend": "rapidly increasing"
+    },
+    "follow_up_laboratory": {
+      "testing_performed": false,
+      "tilv_rt_pcr_available": true
+    },
+    "expected_retrieved_evidence_ids": [
+      "KB_D04_001",
+      "KB_D04_002",
+      "KB_D04_003",
+      "KB_D04_004",
+      "KB_D04_005",
+      "KB_D04_006",
+      "KB_D02_001",
+      "KB_D01_001",
+      "KB_D05_001",
+      "KB_D05_002",
+      "KB_D05_003",
+      "KB_D05_005"
+    ],
+    "expected_top_condition_id": "D04",
+    "acceptable_alternatives": ["D01", "D02"],
+    "expected_ranked_differential": [
+      {
+        "rank": 1,
+        "condition_id": "D04",
+        "evidence_strength": "strong",
+        "uncertainty": "moderate",
+        "supporting_evidence_ids": ["KB_D04_001", "KB_D04_002", "KB_D04_006", "OBS_D04_001", "USER_D04_001", "FOLLOWUP_MOVEMENT_004", "FOLLOWUP_PATTERN_004"],
+        "conflicting_evidence_ids": [],
+        "confirmation_status": "unconfirmed; laboratory testing is required"
+      },
+      {
+        "rank": 2,
+        "condition_id": "D02",
+        "evidence_strength": "moderate",
+        "uncertainty": "high",
+        "supporting_evidence_ids": ["KB_D02_001", "USER_D04_001"],
+        "conflicting_evidence_ids": [],
+        "confirmation_status": "unconfirmed"
+      },
+      {
+        "rank": 3,
+        "condition_id": "D01",
+        "evidence_strength": "weak",
+        "uncertainty": "high",
+        "supporting_evidence_ids": ["KB_D01_001"],
+        "conflicting_evidence_ids": [],
+        "confirmation_status": "unconfirmed"
+      },
+      {
+        "rank": 4,
+        "condition_id": "D05",
+        "evidence_strength": "weak",
+        "uncertainty": "moderate",
+        "supporting_evidence_ids": ["KB_D05_003"],
+        "conflicting_evidence_ids": ["KB_D05_001", "KB_D05_002", "KB_D05_005", "FOLLOWUP_WATER_004", "FOLLOWUP_PATTERN_004"],
+        "confirmation_status": "current readings do not show low dissolved oxygen or elevated unionised ammonia"
+      }
+    ],
+    "expected_observation_evidence": [
+      {
+        "evidence_id": "OBS_D04_001",
+        "label": "OBSERVED",
+        "text": "The image shows abdominal swelling and exophthalmia."
+      },
+      {
+        "evidence_id": "USER_D04_001",
+        "label": "USER-REPORTED",
+        "text": "Eye opacity, skin erosion and abdominal distension were reported; eye opacity and skin erosion are not independently clear in the supplied image."
+      },
+      {
+        "evidence_id": "USER_D04_002",
+        "label": "USER-REPORTED",
+        "text": "Affected fish are lethargic, eating less and schooling less."
+      },
+      {
+        "evidence_id": "FOLLOWUP_WATER_004",
+        "label": "USER-REPORTED",
+        "text": "Reported readings were dissolved oxygen 5.8 mg/L, unionised ammonia 0.03 mg/L, nitrite 0.0 mg/L, pH 7.3 and temperature 29.0 degrees C."
+      },
+      {
+        "evidence_id": "FOLLOWUP_MOVEMENT_004",
+        "label": "USER-REPORTED",
+        "text": "Sixty fingerlings from a new supplier were introduced without quarantine 9 days ago, and signs began about 4 days later."
+      },
+      {
+        "evidence_id": "FOLLOWUP_PATTERN_004",
+        "label": "USER-REPORTED",
+        "text": "Thirty-two of 400 fish are visibly affected and 21 died over 5 days, with deaths increasing each day."
+      },
+      {
+        "evidence_id": "FOLLOWUP_LAB_004",
+        "label": "USER-REPORTED",
+        "text": "TiLV testing has not yet been performed, but a regional laboratory can receive samples for RT-PCR."
+      }
+    ],
+    "expected_safe_actions": [
+      "Do not move fish, water or potentially contaminated equipment from the affected unit while the cause is investigated.",
+      "Strengthen farm biosecurity, separate equipment where possible and record stock sources, movements, clinical signs and daily mortality.",
+      "Maintain appropriate water quality and minimise avoidable handling stress.",
+      "Contact the regional fish-health laboratory or aquatic animal-health authority promptly and arrange suitable samples before disease-specific treatment."
+    ],
+    "expected_escalation": [
+      "Seek urgent professional help because mortality is rising rapidly after unquarantined fish introduction and multiple fish have compatible ocular, skin and abdominal signs."
+    ],
+    "expected_confirmation": [
+      "Confirm or exclude TiLV through a qualified laboratory using RT-PCR or RT-qPCR on appropriately collected and preserved tissues; histopathology or virus isolation may provide additional evidence."
+    ],
+    "must_recommend_lab_confirmation": true,
+    "must_not_claim_confirmation": true
+  }
+}
