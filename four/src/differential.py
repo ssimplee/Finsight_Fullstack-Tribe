@@ -31,26 +31,38 @@ EVIDENCE_WEIGHT = {
 }
 
 # Symptom keywords per condition, used to weight observed signs.
+# Note: both British (haemorrhag) and American (hemorrhag) spellings are listed
+# because the FAO/WOAH knowledge base and case text use British spelling while
+# earlier keywords used American -- without both, haemorrhage signs never hit.
 SYMPTOM_KEYWORDS: dict[str, list[str]] = {
     "D01": [
         "exophthalmia", "pop-eye", "pop eye", "corneal", "spiral", "corkscrew",
         "erratic swimming", "loss of equilibrium", "letharg", "meningo",
+        "haemorrhag",  # British spelling (FAO/WOAH style)
     ],
     "D02": [
-        "ulcer", "scale loss", "frayed fin", "hemorrhag", "ascites",
-        "abdominal distension", "fin rot", "flank",
+        "ulcer", "scale loss", "frayed fin", "hemorrhag", "haemorrhag",
+        "ascites", "abdominal distension", "fin rot", "flank",
+        # Aeromonas-typical external lesions that disambiguate from Strep:
+        "tail erosion", "fin erosion", "opercular",
     ],
     "D03": [
         "grey-white", "gray-white", "saddleback", "saddle", "necrotic patch",
         "gill necrosis", "whitened mouth", "mucus", "columnaris",
+        # Columnaris-typical gill/skin signs that disambiguate from Aeromonas:
+        "pale gill", "damaged gill", "gill damage", "skin patch", "white patch",
+        "grey patch", "grey skin", "frayed fins",
     ],
     "D04": [
         "exophthalmia", "pop-eye", "pop eye", "darkening", "pale gill",
-        "anemia", "skin hemorrhage", "abdominal distension", "letharg",
+        "anemia", "skin hemorrhage", "skin haemorrhage", "abdominal distension",
+        "letharg", "scale protrusion",
     ],
     "D05": [
         "gasp", "surface", "rapid breathing", "dart", "jump", "cluster",
         "brownish gill", "hypoxia", "ammonia", "nitrite", "low dissolved oxygen",
+        # Behavioural emergency signals that accompany acute water-quality crisis:
+        "crowding", "aeration", "aerator", "dawn",
     ],
 }
 
@@ -100,15 +112,21 @@ def _urgency_bonus(case: CaseRecord) -> dict[str, float]:
     history = case.history or {}
     history_text = " ".join(str(v) for v in history.values()).lower()
 
-    # D05 environmental emergency: low DO / high ammonia-nitrite, or a
-    # documented aeration/filtration failure, or sudden mass distress.
+    # D05 environmental emergency. Tiered: a SEVERE acute emergency
+    # (DO<3, or low DO combined with aeration failure + sudden mass distress)
+    # means fish are dying now -> big boost to outrank chronic lesions.
+    # A single mild signal -> smaller boost.
     do_low = wq.dissolved_oxygen_mg_l is not None and wq.dissolved_oxygen_mg_l < 4
+    do_critical = wq.dissolved_oxygen_mg_l is not None and wq.dissolved_oxygen_mg_l < 3
     nh3_high = wq.ammonia_mg_l is not None and wq.ammonia_mg_l > 0.5
     no2_high = wq.nitrite_mg_l is not None and wq.nitrite_mg_l > 0.5
-    aeration_fail = any(k in history for k in _EMERGENCY_WATER) or "aeration" in history_text
-    sudden_mass = "sudden" in history_text and "most" in history_text
-    if do_low or nh3_high or no2_high or aeration_fail or sudden_mass:
-        bonus["D05"] = URGENCY_BONUS["D05"]
+    aeration_fail = any(k in history for k in _EMERGENCY_WATER) or "aeration" in history_text or "aerator" in history_text
+    sudden_mass = "sudden" in history_text and ("most" in history_text or "mass" in history_text)
+    emergency_signals = sum([do_low, nh3_high, no2_high, aeration_fail, sudden_mass])
+    if do_critical or (do_low and aeration_fail and sudden_mass) or emergency_signals >= 3:
+        bonus["D05"] = URGENCY_BONUS["D05"] * 2.0  # severe acute: +3.0
+    elif do_low or nh3_high or no2_high or aeration_fail or sudden_mass:
+        bonus["D05"] = URGENCY_BONUS["D05"]  # single signal: +1.5
 
     # D04 TiLV reportable disease: recent fish movement/transfer, or mass /
     # unusual mortality. (Ocular+skin signs alone are NOT used -- Aeromonas
