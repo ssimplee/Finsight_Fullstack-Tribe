@@ -133,7 +133,15 @@ def _urgency_bonus(case: CaseRecord) -> dict[str, float]:
     # and Streptococcosis share exophthalmia + haemorrhage, so that combo is
     # not TiLV-specific and would falsely boost D04 on bacterial cases.)
     moved = any(k in history for k in _MOVEMENT_KEYS) or "movement" in history_text or "transfer" in history_text
-    mass_mortality = "mass" in history_text or "unusual mortality" in history_text
+    # Reported mortality trend (e.g. "Losses increased over the last 48 hours")
+    # is a mass-mortality signal for TiLV. Scan the dedicated field so wording
+    # like "losses increased" / "rising mortality" is caught, not just "mass".
+    mortality = str(history.get("mortality_trend", "") or "").lower()
+    mass_mortality = (
+        "mass" in history_text
+        or "unusual mortality" in history_text
+        or any(kw in mortality for kw in ("loss", "increase", "ris", "died", "death"))
+    )
     if moved or mass_mortality:
         bonus["D04"] = URGENCY_BONUS["D04"]
 

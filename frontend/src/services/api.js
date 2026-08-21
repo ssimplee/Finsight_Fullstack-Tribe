@@ -48,7 +48,34 @@ function normalizeNullableNumber(value) {
   return Number.isNaN(parsedValue) ? null : parsedValue;
 }
 
+const recentHistoryFieldMap = {
+  "Recent fish introduction": "recent_introduction",
+  "Stocking-density change": "stocking_density_change",
+  "Recent transport or handling": "transport_handling",
+  "Feed change": "feed_change",
+  "Recent treatment": "treatment",
+  "Water change": "water_change",
+  "Filtration or oxygenation failure": "filtration_failure",
+  "Recent temperature change": "temperature_change",
+};
+
 function mapCaseFormToBackend(caseData) {
+  const history = {
+    symptom_duration: caseData.symptomDuration || null,
+    mortality_trend: caseData.mortalityTrend || null,
+    notes: caseData.historyNotes || null,
+  };
+
+  // Map each checked management-history item to the semantic field the RAG
+  // modules key off (missing_info / differential key on exact keys like
+  // `filtration_failure`, not a rolled-up `recent_events` blob).
+  for (const item of caseData.recentHistory) {
+    const field = recentHistoryFieldMap[item];
+    if (field) {
+      history[field] = item;
+    }
+  }
+
   return {
     fish: {
       species: caseData.species || "Nile tilapia",
@@ -73,15 +100,7 @@ function mapCaseFormToBackend(caseData) {
       nitrite_mg_l: normalizeNullableNumber(caseData.waterQuality.nitriteMgL),
       nitrate_mg_l: normalizeNullableNumber(caseData.waterQuality.nitrateMgL),
     },
-    history: {
-      symptom_duration: caseData.symptomDuration || null,
-      mortality_trend: caseData.mortalityTrend || null,
-      recent_events:
-        caseData.recentHistory.length > 0
-          ? caseData.recentHistory.join("; ")
-          : null,
-      notes: caseData.historyNotes || null,
-    },
+    history,
   };
 }
 
@@ -113,24 +132,49 @@ function mapFollowUpAnswersToBackend(questions, answers) {
 }
 
 function mapBackendQuestionsToFrontend(questions) {
-  return questions.map((question) => ({
-    id: question.question_id,
-    prompt: question.question,
-    rationale: question.reason,
-    inputType: question.question.toLowerCase().includes("mortality")
-      ? "choice"
-      : "number",
-    choices: question.question.toLowerCase().includes("mortality")
-      ? ["Yes", "No", "Unknown"]
-      : undefined,
-    unitLabel:
-      question.question.toLowerCase().includes("level") ||
-      question.question.toLowerCase().includes("oxygen") ||
-      question.question.toLowerCase().includes("ammonia")
-        ? "mg/L"
-        : "",
-    placeholder: "Enter answer",
-  }));
+  return questions.map((question) => {
+    const lower = question.question.toLowerCase();
+
+    // Yes/No 问句 → 单选（Yes / No / Unknown）
+    const isYesNo = /^(have|has|are|is|do|did|can|was|were)\b/.test(lower);
+    // 数值测量类（浓度/温度/pH/时长）→ 数字输入
+    const isMeasurement =
+      /(level|temperature|ph\b|how long|duration|oxygen|ammonia|nitrite|nitrate)/.test(
+        lower,
+      );
+
+    let inputType = "number";
+    let choices;
+
+    if (isYesNo) {
+      inputType = "choice";
+      choices = ["Yes", "No", "Unknown"];
+    } else if (isMeasurement) {
+      inputType = "number";
+    } else {
+      // 无法明确归类时用单选兜底，避免误渲染成数字框导致无法输入
+      inputType = "choice";
+      choices = ["Yes", "No", "Unknown"];
+    }
+
+    return {
+      id: question.question_id,
+      prompt: question.question,
+      rationale: question.reason,
+      inputType,
+      choices,
+      unitLabel: lower.includes("temperature")
+        ? "°C"
+        : lower.includes("level") ||
+            lower.includes("oxygen") ||
+            lower.includes("ammonia") ||
+            lower.includes("nitrite") ||
+            lower.includes("nitrate")
+          ? "mg/L"
+          : "",
+      placeholder: "Enter answer",
+    };
+  });
 }
 
 function conditionLabel(conditionId) {
@@ -162,33 +206,52 @@ function mapBackendReportToFrontend(report) {
     observation: localRecord?.observation ?? mockObservation,
   });
 
+  const imageFindings = (record.images ?? []).flatMap(
+    (image) => image.visible_findings ?? [],
+  );
+
   return {
     ...localReport,
     caseId: record.case_id,
+    summary: report.summary || "",
     fish: {
       species: record.fish.species,
       lifeStage: record.fish.life_stage || "Unknown",
     },
     status: {
       assessment:
-        report.status === "mock_report_ready"
-          ? "Mock triage complete"
+        report.status === "report_ready" || report.status === "mock_report_ready"
+          ? "Triage complete"
           : "Needs follow-up",
       confirmation: "Unconfirmed",
       uncertainty: record.differential[0]?.uncertainty || "Moderate",
     },
     observations: {
       ...localReport.observations,
-      visual: record.observations.visual.map((text, index) => ({
-        id: `backend-visual-${index + 1}`,
-        label: "USER-REPORTED",
-        text,
-      })),
-      userReported: record.observations.behavioral.map((text, index) => ({
-        id: `backend-behavior-${index + 1}`,
-        label: "USER-REPORTED",
-        text,
-      })),
+      visual:
+        imageFindings.length > 0
+          ? imageFindings.map((text, index) => ({
+              id: `backend-visual-${index + 1}`,
+              label: "OBSERVED",
+              text,
+            }))
+          : record.observations.visual.map((text, index) => ({
+              id: `backend-reported-${index + 1}`,
+              label: "USER-REPORTED",
+              text,
+            })),
+      userReported: [
+        ...record.observations.visual.map((text, index) => ({
+          id: `backend-reported-${index + 1}`,
+          label: "USER-REPORTED",
+          text,
+        })),
+        ...record.observations.behavioral.map((text, index) => ({
+          id: `backend-behavior-${index + 1}`,
+          label: "USER-REPORTED",
+          text,
+        })),
+      ],
     },
     differential:
       record.differential.length > 0
@@ -222,10 +285,10 @@ function mapBackendReportToFrontend(report) {
         ? record.retrieved_evidence.map((item) => ({
             id: item.evidence_id,
             title: item.label,
-            organization: item.source_id || "Pending source",
-            section: item.condition_id || "Mock evidence",
+            organization: item.source_id || "Knowledge base",
+            section: item.condition_id || "General evidence",
             passage: item.text,
-            usage: "Returned by the backend mock workflow.",
+            usage: "Retrieved from the fish-disease knowledge base for this assessment.",
           }))
         : localReport.sources,
   };
@@ -269,21 +332,43 @@ export async function createCase(caseData) {
   return { caseId };
 }
 
+function buildObservationFromUpload(uploaded) {
+  const images = uploaded?.images ?? [];
+  const findings = images.flatMap((image) => image.visible_findings ?? []);
+  const realFindings = findings.filter(
+    (text) => text && !/pending|unavailable|none/i.test(text),
+  );
+
+  if (realFindings.length === 0) {
+    return mockObservation;
+  }
+
+  return {
+    id: "observation-backend",
+    label: "Observed, not confirmed",
+    findings: realFindings,
+    limitations: [
+      "Image findings are decision support only and cannot confirm a disease.",
+      "Laboratory testing is still required for a confirmed diagnosis.",
+    ],
+  };
+}
+
 export async function uploadFishImage(caseId, imageFile) {
   const record = ensureCase(caseId);
   const formData = new FormData();
   formData.append("file", imageFile);
 
-  await requestJson(`/cases/${caseId}/images`, {
+  const uploaded = await requestJson(`/cases/${caseId}/images`, {
     method: "POST",
     body: formData,
   });
 
   record.imageFileName = imageFile?.name ?? null;
-  record.observation = mockObservation;
+  record.observation = buildObservationFromUpload(uploaded);
   refreshSharedCaseRecord(record);
 
-  return { success: true };
+  return { success: true, observation: record.observation };
 }
 
 export async function getFollowUpQuestions(caseId) {

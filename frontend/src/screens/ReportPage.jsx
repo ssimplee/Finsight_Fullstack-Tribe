@@ -152,6 +152,14 @@ export default function ReportPage() {
         </p>
       </div>
 
+      {report.summary ? (
+        <SectionCard eyebrow="Clinical Summary" title="Assessment conclusion">
+          <p className="section-intro" style={{ whiteSpace: "pre-wrap" }}>
+            {report.summary}
+          </p>
+        </SectionCard>
+      ) : null}
+
       <div className="summary-grid">
         <div className="summary-grid__item">
           <span>Case ID</span>
@@ -229,7 +237,7 @@ export default function ReportPage() {
           </SectionCard>
         </div>
 
-        <SectionCard eyebrow="Evidence Sources" title="Mock source summaries">
+        <SectionCard eyebrow="Evidence Sources" title="Evidence source summaries">
           <EvidenceList
             items={report.sources}
             onSelect={(sourceId) => setSelectedSourceId(sourceId)}

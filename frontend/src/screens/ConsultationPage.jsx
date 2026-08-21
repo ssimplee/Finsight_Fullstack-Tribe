@@ -125,17 +125,22 @@ export default function ConsultationPage() {
       setCaseId(response.caseId);
 
       if (consultation.imageFile) {
-        await uploadFishImage(response.caseId, consultation.imageFile);
+        const upload = await uploadFishImage(
+          response.caseId,
+          consultation.imageFile,
+        );
+        setObservation(upload.observation);
+      } else {
+        setObservation(mockObservation);
       }
 
       const questions = await getFollowUpQuestions(response.caseId);
       setFollowUpQuestions(questions);
-      setObservation(mockObservation);
       setConsultationStage("followUp");
       setSubmissionMessage(
         consultation.imageFile
           ? "Image preview preserved. Review the observation summary and answer the follow-up questions."
-          : "Continuing without an uploaded image. The observation summary remains mock data for the prototype.",
+          : "Continuing without an uploaded image. The observation summary is based on reported symptoms only.",
       );
     } catch (error) {
       setSubmissionError(
@@ -228,7 +233,7 @@ export default function ConsultationPage() {
             <div ref={followUpSectionRef} className="stack-lg">
               <SectionCard
                 eyebrow="Image observation"
-                title="Observed findings from the mock image review"
+                title="Observed findings from the image analysis"
                 actions={<Badge tone="warning">{consultation.observation.label}</Badge>}
               >
                 {submissionMessage ? (

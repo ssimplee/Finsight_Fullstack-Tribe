@@ -1,5 +1,6 @@
 import logging
 import os
+import re
 from uuid import uuid4
 
 from fastapi import UploadFile
@@ -30,6 +31,67 @@ try:
     from app.services.rag_service import rag_service
 except Exception:  # RAG deps (chromadb/sentence-transformers) not installed
     rag_service = None
+
+
+_WATER_QUALITY_FIELDS = {
+    "temperature_c",
+    "ph",
+    "dissolved_oxygen_mg_l",
+    "ammonia_mg_l",
+    "nitrite_mg_l",
+    "nitrate_mg_l",
+}
+
+_YES_NO_HISTORY_FIELDS = {
+    "recent_introduction",
+    "stocking_density_change",
+    "transport_handling",
+    "feed_change",
+    "treatment",
+    "water_change",
+    "filtration_failure",
+    "temperature_change",
+}
+
+
+def _parse_numeric(answer: str) -> float | None:
+    match = re.search(r"-?\d+(?:\.\d+)?", answer or "")
+    if not match:
+        return None
+    try:
+        return float(match.group())
+    except ValueError:
+        return None
+
+
+def _apply_answer_to_case(case: CaseRecord, field_name: str | None, answer: str) -> None:
+    """Feed a follow-up answer back into the structured fields the RAG
+    differential and retriever actually read (water_quality / history)."""
+    if not field_name or not answer:
+        return
+    answer = answer.strip()
+    if not answer:
+        return
+
+    if field_name in _WATER_QUALITY_FIELDS:
+        value = _parse_numeric(answer)
+        if value is not None:
+            setattr(case.water_quality, field_name, value)
+        return
+
+    history = case.history or {}
+    case.history = history
+
+    if field_name in _YES_NO_HISTORY_FIELDS:
+        first = answer.lower().split(None, 1)[0].strip(".,;:")
+        if first in {"yes", "true", "y", "yeah", "correct", "confirmed"}:
+            history[field_name] = True
+        # "no" / "unknown" answers carry no positive signal: do not add the key,
+        # since differential._urgency_bonus keys on presence and would treat a
+        # `False` value as a false positive.
+        return
+
+    history[field_name] = answer
 
 
 class CaseService:
@@ -114,6 +176,7 @@ class CaseService:
                         question_id="Q_001",
                         question="What is the dissolved oxygen level?",
                         reason="Low dissolved oxygen can explain respiratory distress and surface gasping.",
+                        field_name="dissolved_oxygen_mg_l",
                     )
                 )
             if case.water_quality.ammonia_mg_l is None:
@@ -122,6 +185,7 @@ class CaseService:
                         question_id="Q_002",
                         question="What is the ammonia level?",
                         reason="Ammonia stress can overlap with infectious disease signs and changes safe actions.",
+                        field_name="ammonia_mg_l",
                     )
                 )
             questions.append(
@@ -147,7 +211,9 @@ class CaseService:
         answers_by_id = {item.question_id: item.answer for item in payload.answers}
         for question in case.agent_questions:
             if question.question_id in answers_by_id:
-                question.answer = answers_by_id[question.question_id]
+                answer = answers_by_id[question.question_id]
+                question.answer = answer
+                _apply_answer_to_case(case, question.field_name, answer)
 
         return case
 
@@ -170,7 +236,11 @@ class CaseService:
         if _USE_REAL_RAG and rag_service is not None:
             try:
                 return rag_service.build_report(case)
-            except Exception:
+            except Exception as e:  # noqa: BLE001 - surface the failure instead of hiding it
+                import traceback
+
+                print(f"[case_service] RAG build_report FAILED: {e!r}", flush=True)
+                traceback.print_exc()
                 pass  # fall through to mock
 
         # --- mock fallback (original Member 1 logic) ---

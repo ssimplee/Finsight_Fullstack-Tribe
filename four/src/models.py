@@ -50,6 +50,7 @@ class AgentQuestion(BaseModel):
     question: str
     reason: str
     answer: Optional[str] = None
+    field_name: Optional[str] = None
 
 
 class DifferentialItem(BaseModel):

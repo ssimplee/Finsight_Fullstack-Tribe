@@ -40,6 +40,7 @@ class AgentQuestion(BaseModel):
     question: str
     reason: str
     answer: str | None = None
+    field_name: str | None = None
 
 
 class FollowUpAnswer(BaseModel):

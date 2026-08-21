@@ -26,7 +26,11 @@ class RagService:
     """Real Member 4 RAG, replacing the mock branches in case_service."""
 
     def __init__(self, db_path: str | None = None) -> None:
-        self._db_path = db_path or os.path.join(_FOUR_DIR, "fin_sight_db")
+        self._db_path = (
+            db_path
+            or os.environ.get("FINSIGHT_RAG_DB_PATH")
+            or os.path.join(_FOUR_DIR, "fin_sight_db")
+        )
         self._retriever = None
         self._ready = False
 
@@ -50,6 +54,7 @@ class RagService:
         regenerate follow-up questions (case_service handles that step).
         """
         self._ensure_ready()
+        from src import contradiction as _contradiction
         from src import differential as _differential
         from src import missing_info as _missing
         from src import safety as _safety
@@ -120,6 +125,24 @@ class RagService:
                 summary += f" Alternatives considered: {others}."
             summary += " Findings are not confirmed; laboratory testing is required before treatment."
         trace.append("Summary: " + ("Qwen" if used_qwen else "deterministic"))
+
+        # 6. Cross-modality contradiction detection (worksplit §13 Priority 3):
+        # flag when visual / behavioural / water-quality signals point to
+        # different conditions, then fold the notes into the summary.
+        try:
+            contradictions = _contradiction.detect(case)
+        except Exception as e:  # noqa: BLE001 - never fail a report on this
+            contradictions = []
+            trace.append(f"Contradiction detection skipped ({e})")
+        if contradictions:
+            summary += " " + " ".join(contradictions)
+            trace.append(f"Contradictions flagged: {len(contradictions)}")
+
+        # 7. Safety scrub: block unsupported diagnostic / treatment claims in
+        # the generated summary (recorded for the audit trail; no behaviour change).
+        violations = _safety.check_safety(summary)
+        trace.append("Safety check passed" if not violations else f"Safety violations: {violations}")
+
         return CaseReport(case=case, status="report_ready", summary=summary)
 
 

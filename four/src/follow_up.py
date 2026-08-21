@@ -118,6 +118,7 @@ def build_questions(case, min_questions: int = 2, max_questions: int = 4) -> lis
                 question_id=f"Q_{len(questions) + 1:03d}",
                 question=question,
                 reason=reason,
+                field_name=item["field"],
             )
         )
 
