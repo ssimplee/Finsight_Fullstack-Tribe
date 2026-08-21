@@ -93,9 +93,19 @@ def load_chunks(path: str) -> list[dict]:
 
 
 def build_collection(db_path: str) -> chromadb.Collection:
+    import torch
+
+    # sentence-transformers 3.x + torch 2.x can intermittently leave the local
+    # model on the "meta" device (no weights) and then crash in .to(device);
+    # see huggingface/sentence-transformers#3396. Force eager CPU materialization.
+    torch.set_default_device("cpu")
     client = chromadb.PersistentClient(path=db_path)
     model_name = resolve_model_name()
-    ef = embedding_functions.SentenceTransformerEmbeddingFunction(model_name=model_name)
+    ef = embedding_functions.SentenceTransformerEmbeddingFunction(
+        model_name=model_name,
+        device="cpu",
+        model_kwargs={"low_cpu_mem_usage": False},
+    )
     collection = client.get_or_create_collection(
         name=COLLECTION_NAME, embedding_function=ef
     )
