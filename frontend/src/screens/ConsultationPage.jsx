@@ -165,7 +165,7 @@ export default function ConsultationPage() {
       router.push("/analysis");
     } catch (error) {
       setSubmissionError(
-        "FinSight could not queue the mock analysis. Return to the intake step and try again.",
+        "FinSight could not queue the assessment. Return to the intake step and try again.",
       );
     } finally {
       setSubmitting(false);

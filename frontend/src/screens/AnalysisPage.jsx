@@ -64,7 +64,7 @@ export default function AnalysisPage() {
       <PageContainer>
         <SectionCard eyebrow="Analysis unavailable" title="Start a case first.">
           <p className="section-intro">
-            The mock analysis requires a case intake record. Return to the
+            The assessment requires a case intake record. Return to the
             consultation page to begin a new triage flow.
           </p>
           <Button onClick={() => router.push("/consultation")}>
@@ -139,7 +139,7 @@ export default function AnalysisPage() {
 
             {isFinished ? (
               <div className="analysis-complete">
-                <p>The mock report is ready. Redirecting to the report page.</p>
+                <p>The assessment report is ready. Redirecting to the report page.</p>
                 <Button onClick={() => router.push("/report")}>
                   View Assessment Report
                 </Button>

@@ -70,7 +70,7 @@ export default function ReportPage() {
       } catch (loadError) {
         if (isMounted) {
           setError(
-            "FinSight could not load the mock report. Restart the consultation to rebuild the case state.",
+            "FinSight could not load the assessment report. Restart the consultation to rebuild the case state.",
           );
         }
       } finally {
@@ -97,7 +97,7 @@ export default function ReportPage() {
       <PageContainer>
         <SectionCard eyebrow="Loading report" title="Preparing the assessment.">
           <p className="section-intro">
-            FinSight is loading the mock report and evidence summary.
+            FinSight is loading the assessment report and evidence summary.
           </p>
         </SectionCard>
       </PageContainer>
